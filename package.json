@@ -1,0 +1,16 @@
+{
+  "name": "async-await-sb",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "jasmine spec/jasmine-spec.js"
+  },
+  "repository": "www.blah.com",
+  "author": "",
+  "license": "ISC",
+  "description": "Async Sandbox",
+  "dependencies": {
+    "jasmine": "^2.5.3",
+    "request": "^2.81.0"
+  }
+}
