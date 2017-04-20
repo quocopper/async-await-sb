@@ -1,4 +1,8 @@
-const test_url = "https://www.google.ca/";
+request = require( 'request' );
+
+const test_url = 'https://www.google.ca';
+const assets_url = 'http://localhost:3000/asset-types';
+var container_id = '';
 
 describe("Asynchronous specs Tutorial", function() {
   var value;
@@ -34,7 +38,5 @@ describe("Asynchronous specs Tutorial", function() {
     });
   });
 
-  describe( "Easy GET/ on Google", {
-    // Do really simple get request
-  })
+
 });

@@ -1,12 +1,3 @@
-
-
-
-
-
-
-
-
-
 function resolveAfterInterval(x,t) {
  return new Promise(resolve => {
   setTimeout(() => {
