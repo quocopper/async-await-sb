@@ -63,9 +63,7 @@ function parseBody() {
   function transform( chunk, encoding, cb ) {
     
     accumulator.push( chunk );
-    process.nextTick(( err ) => {
-      cb( accumulator );
-    });
+    process.nextTick( cb );
   }
 
   function flush( done ) {
