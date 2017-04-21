@@ -1,6 +1,6 @@
 const http = require( 'http' );
 const url = require( 'url' );
-const fs = require('fs');
+const fs = require( 'fs' );
 const uploads_url = 'http://quoc-virtualbox:3002/uploads?onUploaded=http%3A%2F%2Fquoc-virtualbox%3A3001%2Fimporters%2Fasset-types%2F%7Bcontainer%7D';
 const uploads_url_second = 'http://quoc-virtualbox:3002/uploads/%s/upload?onUploaded=http%3A%2F%2Fquoc-virtualbox%3A3001%2Fimporters%2Fasset-types%2F%7Bcontainer%7D';
 const postParams = require( 'url' ).parse( uploads_url );
@@ -43,27 +43,37 @@ postParams.someArbitraryField = 'someArbitraryValue';
 
 // } ).end();
 
-// Use piping
-var jsonString;
-http.request( 
-  postParams, 
-( res )=>{
+// // Use piping
 
-  var bodyCon = '';
-  // var buffer = Buffer.from( bodyCon );
-  var writeStream = process.stdout;
+const jsonString;
+const Transform = require( 'stream' ).Transform;
 
-  res
-  // .pipe( parseJSON() )
-  .pipe( process.stdout )
-  .on( 'end', () => {
-    console.log( '*************************************************', jsonString );
+res.pipe( parseBody() )
+  .on( 'data', ( body ) => {
+    jsonString = body.container;
+} );
+
+function parseBody() {
+
+  const accumulator = new Buffer();
+  const myTransform = Transform( {
+    transform, flush
   } );
 
-} ).end();
+  function transform( chunk, encoding, cb ) {
+    
+    accumulator.push( chunk );
+    process.nextTick(( err ) => {
+      cb( accumulator );
+    });
+  }
 
-function parseJSON( body ) {
-  jsonString = JSON.parse( body );
+  function flush( done ) {
+
+    const bodyStr = Buffer.from( accumulator ).toString();
+    this.push( JSON.parse( bodyStr ) );
+    done();
+  }
+
+  return myTransform;
 }
-
-// // TODO: Use container ID from above to upload a binary file.
