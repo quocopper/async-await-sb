@@ -1,77 +1,109 @@
 const http = require( 'http' );
 const url = require( 'url' );
-const fs = require( 'fs' );
+// const fs = require( 'fs' );
 const uploads_url = 'http://quoc-virtualbox:3002/uploads?onUploaded=http%3A%2F%2Fquoc-virtualbox%3A3001%2Fimporters%2Fasset-types%2F%7Bcontainer%7D';
 const uploads_url_second = 'http://quoc-virtualbox:3002/uploads/%s/upload?onUploaded=http%3A%2F%2Fquoc-virtualbox%3A3001%2Fimporters%2Fasset-types%2F%7Bcontainer%7D';
 const postParams = require( 'url' ).parse( uploads_url );
 const util = require( 'util' );
+const Transform = require( 'stream' ).Transform;
 
-var container = null;
-var container_url = null;
-var newParams = null;
+let container_url;
+let container_id;
+let newParams;
 
 postParams.method = 'post';
 postParams.someArbitraryField = 'someArbitraryValue';
 
-// Initial request to create container ID.
-// http.request( 
-//   postParams, 
-// ( res )=>{
+/**
+ *Initial request to create container ID.
+ */
+http.request( 
+  postParams, 
+( res )=>{
 
-//   console.log( 'Upload successful! Server responded with:', res.statusCode );
-//   console.log( 'full response:', res.toString() );
-//   var bodyContent = '';
+  // console.log( 'Upload successful! Server responded with:', res.statusCode );
+  // console.log( 'full response:', res.toString() );
+  let bodyContent = '';
 
-//   res.on( 'data', ( chunk ) => {
+  res.on( 'data', ( chunk )=>{
     
-//     bodyContent += chunk;
+    bodyContent += chunk;
 
-//   });
+  } );
 
-//   res.on( 'end', () => {
+  res.on( 'end', ()=>{
 
-//     container = JSON.parse( bodyContent ).container;
-//     console.log( 'The newly created container is:', container );
+    container_id = JSON.parse( bodyContent ).container;
+    console.log( 'The newly created container is:', container_id );
 
-//     container_url = util.format( uploads_url_second, container );
-//     console.log( 'The container url is:', container_url );
+    container_url = util.format( uploads_url_second, container_id );
+    // console.log( 'The container url is:', container_url );
 
-//     newParams = url.parse( container_url );
-//     newParams.method = "post";
+    newParams = url.parse( container_url );
+    newParams.method = 'post';
 
-//   });
+  } );
 
-// } ).end();
+} ).end();
 
-// // Use piping
+/**
+ * Use piping here:
+ */
+http.request( 
+  postParams, 
+  ( res )=>{
 
-const jsonString;
-const Transform = require( 'stream' ).Transform;
+    res.pipe( parseBody() )
+    .on( 'data', ( body )=>{
+      
+      container_id = body.container;
+    
+    } );
 
-res.pipe( parseBody() )
-  .on( 'data', ( body ) => {
-    jsonString = body.container;
-} );
+  } ).end();
 
-function parseBody() {
+function parseBody(){
 
-  const accumulator = new Buffer();
+  const accumulator = [];
   const myTransform = Transform( {
     transform, flush
   } );
 
-  function transform( chunk, encoding, cb ) {
+  function transform( chunk, encoding, myCallback ){
     
     accumulator.push( chunk );
-    process.nextTick( cb );
+
+    try{
+
+      process.nextTick( myCallback );
+
+    }catch( err ){
+      
+      return myCallback( err );
+
+    }
   }
 
-  function flush( done ) {
+  function flush( done ){
 
     const bodyStr = Buffer.from( accumulator ).toString();
-    this.push( JSON.parse( bodyStr ) );
-    done();
+    let parsed;
+
+    try{
+
+      parsed = JSON.parse( bodyStr );
+
+    }catch( err ){
+
+      return done( err );
+
+    }
+
+    this.push( parsed );
+    process.nextTick( done );
+
   }
 
   return myTransform;
+
 }
