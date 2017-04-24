@@ -1,7 +1,6 @@
 const debugMode = false;
 const http = require( 'http' );
 const url = require( 'url' );
-// const fs = require( 'fs' );
 const uploads_url = 'http://quoc-virtualbox:3002/uploads?onUploaded=http%3A%2F%2Fquoc-virtualbox%3A3001%2Fimporters%2Fasset-types%2F%7Bcontainer%7D';
 const uploads_url_second = 'http://quoc-virtualbox:3002/uploads/%s/upload?onUploaded=http%3A%2F%2Fquoc-virtualbox%3A3001%2Fimporters%2Fasset-types%2F%7Bcontainer%7D';
 const postParams = url.parse( uploads_url );
