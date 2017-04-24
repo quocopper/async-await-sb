@@ -1,3 +1,4 @@
+const debugMode = false;
 const http = require( 'http' );
 const url = require( 'url' );
 // const fs = require( 'fs' );
@@ -9,9 +10,18 @@ const Transform = require( 'stream' ).Transform;
 
 let container_url;
 let container_id;
-let newParams;
 
 postParams.method = 'post';
+
+function logDebug( ... debugStrings ){
+
+  if( debugMode ){
+
+    console.log( debugStrings.join( ' ' ) );
+
+  }
+
+}
 
 /**
  * POST to /uploads and store the created container ID.
@@ -25,7 +35,7 @@ http.request(
       
       container_id = body.container;
       container_url = util.format( uploads_url_second, container_id );
-      console.log( 'Container ID:', container_id, '\nContainer URL:', container_url );
+      logDebug( 'Container ID:', container_id, '\nContainer URL:', container_url );
     
     } );
 
