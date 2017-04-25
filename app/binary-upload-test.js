@@ -1,4 +1,4 @@
-const debugMode = false;
+const debugMode = true;
 const http = require( 'http' );
 const url = require( 'url' );
 const uploads_url = 'http://quoc-virtualbox:3002/uploads?onUploaded=http%3A%2F%2Fquoc-virtualbox%3A3001%2Fimporters%2Fasset-types%2F%7Bcontainer%7D';
@@ -23,6 +23,27 @@ function logDebug( ... debugStrings ){
 }
 
 /**
+ * Attemp to refactor code below.
+ */
+function doRequestAndReturnJSON( requestParams, myCallback ){
+  
+  http.request(
+    requestParams,
+    ( res )=>{
+      
+      res.pipe( parseBody() )
+      .on( 'data', ( body )=>{
+        return body;
+      } );
+
+  } ).end();
+}
+
+
+// container_id = doRequestAndReturnJSON( postParams );
+// console.log( 'container:', container_id );
+
+/**
  * POST to /uploads and store the created container ID.
  */
 http.request( 
@@ -38,7 +59,7 @@ http.request(
     
     } );
 
-  } ).end();
+  } ).end( null, null, null );
 
 function parseBody(){
 

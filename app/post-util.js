@@ -9,95 +9,21 @@ const Transform = require( 'stream' ).Transform;
 
 let container_url;
 let container_id;
-let value;
 
-describe( 'Asynchronous specs Tutorial', ()=>{
-  
-  beforeAll( ( done )=>{
-
-    http.request( 
-    postParams, 
-    ( res )=>{
-
-      res.pipe( parseBody() )
-      .on( 'data', ( body )=>{
-        
-        container_id = body.container;
-        container_url = util.format( uploads_url_second, container_id );
-        logDebug( 'Container ID:', container_id, '\nContainer URL:', container_url );
-      
-      } );
-
-    } ).end( null, null, done );
-
-  } );
-
-  beforeEach( ( done )=>{
-    
-    setTimeout( ()=>{
-      
-      value = 0;
-      done();
-
-    }, 1 );
-
-  } );
-
-  it( 'the container id better be non-empty', ( done )=>{
-    
-    expect( container_id ).toBeGreaterThan( 'purposely fail this test' );
-    done();
-
-  } );
-
-  it( 'should support async execution of test preparation and expectations', ( done )=>{
-    
-    value++;
-    expect( value ).toBeGreaterThan( 0 );
-    done();
-
-  } );
-
-  it( 'what is jasmine\'s default timeout?', ( done )=>{
-    
-    expect( jasmine.DEFAULT_TIMEOUT_INTERVAL).toBeLessThan( -555 );
-    done();
-
-  } );
-
-} );
-
-
-/**
- * 
- * -----------------------------------------------
- * || Code below to be put into separate module ||
- * -----------------------------------------------
- * 
- */
 postParams.method = 'post';
 
-function setContainerID( containerID ){
-  doRequest
-}
-
 function doRequestAndReturnJSON( requestParams ){
-
-  http.request( 
-    postParams, 
+  
+  http.request(
+    requestParams,
     ( res )=>{
-
+      
       res.pipe( parseBody() )
       .on( 'data', ( body )=>{
-        
-        container_id = body.container;
-        container_url = util.format( uploads_url_second, container_id );
-        logDebug( 'Container ID:', container_id, '\nContainer URL:', container_url );
-      
+        return body;
       } );
 
-    } ).end();
-
+  } ).end();
 }
 
 function logDebug( ... debugStrings ){
