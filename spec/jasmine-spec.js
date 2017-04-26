@@ -36,15 +36,12 @@ describe( 'Asynchronous specs Tutorial', ()=>{
   it( 'the container id better be non-empty', ()=>{
     
     expect( container_id ).toBeTruthy( 'Container ID should be valid.' );
-    expect( container_url ).not.toContain( util.format( 'uploads/%s/upload?', container_id ), 
-    'URL should container the newly created container ID.' );
 
   } );
 
   it( 'the url should include the container id', ()=>{
     
-    expect( container_id ).toBeTruthy( 'Container ID should be valid.' );
-    expect( container_url ).not.toContain( util.format( 'uploads/%s/upload?', container_id ), 
+    expect( container_url ).toContain( util.format( 'uploads/%s/upload?', container_id ), 
     'URL should container the newly created container ID.' );
 
   } );
