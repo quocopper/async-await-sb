@@ -15,52 +15,31 @@ describe( 'Asynchronous specs Tutorial', ()=>{
   
   beforeAll( ( done )=>{
 
+    // // This code block doesn't work.
+    // container_id = doRequestAndReturnJSON( postParams );
+    // done();
+
     http.request( 
     postParams, 
     ( res )=>{
 
-      res.pipe( parseBody() )
+      res
+      .pipe( parseBody() )
       .on( 'data', ( body )=>{
         
         container_id = body.container;
         container_url = util.format( uploads_url_second, container_id );
-        logDebug( 'Container ID:', container_id, '\nContainer URL:', container_url );
-      
+        done();
+
       } );
 
-    } ).end( null, null, done );
-
-  } );
-
-  beforeEach( ( done )=>{
-    
-    setTimeout( ()=>{
-      
-      value = 0;
-      done();
-
-    }, 1 );
+    } ).end();
 
   } );
 
   it( 'the container id better be non-empty', ( done )=>{
     
-    expect( container_id ).toBeGreaterThan( 'purposely fail this test' );
-    done();
-
-  } );
-
-  it( 'should support async execution of test preparation and expectations', ( done )=>{
-    
-    value++;
-    expect( value ).toBeGreaterThan( 0 );
-    done();
-
-  } );
-
-  it( 'what is jasmine\'s default timeout?', ( done )=>{
-    
-    expect( jasmine.DEFAULT_TIMEOUT_INTERVAL).toBeLessThan( -555 );
+    expect( container_id ).toBeTruthy( 'Container ID should be valid.' );
     done();
 
   } );
@@ -100,34 +79,9 @@ function doRequestAndReturnJSON( requestParams ){
 
 }
 
-function logDebug( ... debugStrings ){
-
-  if( debugMode ){
-
-    console.log( debugStrings.join( ' ' ) );
-
-  }
-
-}
-
 /**
- * POST to /uploads and store the created container ID.
+ * Returns a Transform stream to 
  */
-http.request( 
-  postParams, 
-  ( res )=>{
-
-    res.pipe( parseBody() )
-    .on( 'data', ( body )=>{
-      
-      container_id = body.container;
-      container_url = util.format( uploads_url_second, container_id );
-      logDebug( 'Container ID:', container_id, '\nContainer URL:', container_url );
-    
-    } );
-
-  } ).end();
-
 function parseBody(){
 
   const accumulator = [];
