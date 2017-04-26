@@ -15,10 +15,6 @@ describe( 'Asynchronous specs Tutorial', ()=>{
   
   beforeAll( ( done )=>{
 
-    // // This code block doesn't work.
-    // container_id = doRequestAndReturnJSON( postParams );
-    // done();
-
     http.request( 
     postParams, 
     ( res )=>{
@@ -71,7 +67,6 @@ function doRequestAndReturnJSON( requestParams ){
         
         container_id = body.container;
         container_url = util.format( uploads_url_second, container_id );
-        logDebug( 'Container ID:', container_id, '\nContainer URL:', container_url );
       
       } );
 
@@ -80,7 +75,7 @@ function doRequestAndReturnJSON( requestParams ){
 }
 
 /**
- * Returns a Transform stream to 
+ * Returns a Transform that parses the JSON response
  */
 function parseBody(){
 
