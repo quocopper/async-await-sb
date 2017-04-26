@@ -1,4 +1,3 @@
-const debugMode = false;
 const http = require( 'http' );
 const url = require( 'url' );
 const uploads_url = 'http://quoc-virtualbox:3002/uploads?onUploaded=http%3A%2F%2Fquoc-virtualbox%3A3001%2Fimporters%2Fasset-types%2F%7Bcontainer%7D';
@@ -9,9 +8,10 @@ const Transform = require( 'stream' ).Transform;
 
 let container_url;
 let container_id;
-let value;
 
 describe( 'Asynchronous specs Tutorial', ()=>{
+
+  postParams.method = 'post';
   
   beforeAll( ( done )=>{
 
@@ -50,16 +50,16 @@ describe( 'Asynchronous specs Tutorial', ()=>{
  * -----------------------------------------------
  * 
  */
-postParams.method = 'post';
 
-function setContainerID( containerID ){
-  doRequest
-}
-
+/**
+ * 
+ * @param {object} requestParams The request parameters
+ * @returns {void}
+ */
 function doRequestAndReturnJSON( requestParams ){
 
   http.request( 
-    postParams, 
+    requestParams, 
     ( res )=>{
 
       res.pipe( parseBody() )
@@ -76,6 +76,8 @@ function doRequestAndReturnJSON( requestParams ){
 
 /**
  * Returns a Transform that parses the JSON response
+ * 
+ * @returns{object} Returns a Transform that parses the JSON response
  */
 function parseBody(){
 

@@ -23,7 +23,7 @@ function logDebug( ... debugStrings ){
 }
 
 /**
- * Attemp to refactor code below.
+ * Attempt to refactor code below.
  */
 function doRequestAndReturnJSON( requestParams, myCallback ){
   
