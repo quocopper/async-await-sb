@@ -25,8 +25,7 @@ describe( 'POST to /uploads end point', ()=>{
 
       }
 
-      container_id = result.jsonBody.container;
-      container_url = util.format( uploads_url_second, container_id );
+      container_url = result.jsonBody._links.upload.href;
       status_code = result.statusCode;
       done();
 
@@ -34,22 +33,9 @@ describe( 'POST to /uploads end point', ()=>{
 
   } );
 
-  it( 'the container id better be non-empty', ()=>{
+  it( 'the initial POST request to return 200.', ()=>{
     
-    expect( container_id ).toBeTruthy( 'Container ID should be valid.' );
-
-  } );
-
-  it( 'the container id better be non-empty', ()=>{
-    
-    expect( status_code ).toBeTruthy( 'Container ID should be valid.' );
-
-  } );
-
-  it( 'the url should include the container id', ()=>{
-    
-    expect( container_url ).toContain( util.format( 'uploads/%s/upload?', container_id ), 
-    'URL should container the newly created container ID.' );
+    expect( status_code ).toBe( 200, util.format( 'Invalid response code: %s', status_code ) );
 
   } );
 
