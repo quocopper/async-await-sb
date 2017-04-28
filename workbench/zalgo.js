@@ -1,3 +1,6 @@
+/**
+ * An example of 'Zalgo'
+ */
 const initialCount = 1000000;
 
 const writableStream = require( 'stream' ).Writable( { write } );

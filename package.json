@@ -11,10 +11,12 @@
   "description": "Async Sandbox",
   "dependencies": {
     "jasmine": "^2.5.3",
+    "multipipe": "^1.0.2",
     "request": "^2.81.0"
   },
   "devDependencies": {
+    "cl-node-dev-tools": "git+ssh://git@github.com:copperleaftech/cl-node-dev-tools.git",
     "eslint": "^3.19.0",
-    "cl-node-dev-tools": "git+ssh://git@github.com:copperleaftech/cl-node-dev-tools.git"
+    "jasmine-spec-reporter": "^4.0.0"
   }
 }

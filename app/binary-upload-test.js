@@ -39,7 +39,6 @@ function doRequestAndReturnJSON( requestParams, myCallback ){
   } ).end();
 }
 
-
 // container_id = doRequestAndReturnJSON( postParams );
 // console.log( 'container:', container_id );
 

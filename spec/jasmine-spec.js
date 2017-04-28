@@ -2,40 +2,47 @@ const http = require( 'http' );
 const url = require( 'url' );
 const uploads_url = 'http://quoc-virtualbox:3002/uploads?onUploaded=http%3A%2F%2Fquoc-virtualbox%3A3001%2Fimporters%2Fasset-types%2F%7Bcontainer%7D';
 const uploads_url_second = 'http://quoc-virtualbox:3002/uploads/%s/upload?onUploaded=http%3A%2F%2Fquoc-virtualbox%3A3001%2Fimporters%2Fasset-types%2F%7Bcontainer%7D';
-const postParams = url.parse( uploads_url );
 const util = require( 'util' );
 const Transform = require( 'stream' ).Transform;
 
 let container_url;
 let container_id;
+let status_code;
 
-describe( 'Asynchronous specs Tutorial', ()=>{
+describe( 'POST to /uploads end point', ()=>{
 
-  postParams.method = 'post';
+  const postToUploads = url.parse( uploads_url );
+
+  postToUploads.method = 'post';
   
   beforeAll( ( done )=>{
 
-    http.request( 
-    postParams, 
-    ( res )=>{
+    getFullResponse( postToUploads, ( err, result )=>{
 
-      res
-      .pipe( parseBody() )
-      .on( 'data', ( body )=>{
-        
-        container_id = body.container;
-        container_url = util.format( uploads_url_second, container_id );
-        done();
+      if( err ){
 
-      } );
+        return err;
 
-    } ).end();
+      }
+
+      container_id = result.jsonBody.container;
+      container_url = util.format( uploads_url_second, container_id );
+      status_code = result.statusCode;
+      done();
+
+    } );
 
   } );
 
   it( 'the container id better be non-empty', ()=>{
     
     expect( container_id ).toBeTruthy( 'Container ID should be valid.' );
+
+  } );
+
+  it( 'the container id better be non-empty', ()=>{
+    
+    expect( status_code ).toBeTruthy( 'Container ID should be valid.' );
 
   } );
 
@@ -46,6 +53,64 @@ describe( 'Asynchronous specs Tutorial', ()=>{
 
   } );
 
+  it( 'user should be able to upload to the correct URL', ( done )=>{
+
+    const postToUploadContainerID = url.parse( container_url );
+
+    // See: https://nodejs.org/api/http.html#http_class_http_clientrequest
+    // let postData = require('querystring').stringify({'msg': 'Hello World!'});
+
+    postToUploadContainerID.method = 'post';
+    // postToUploadContainerID.headers = {
+    //   'Content-Type':   'application/x-www-form-urlencoded',
+    //   'Content-Length': Buffer.byteLength( 'postData' )
+    // };
+    
+    getFullResponse( postToUploadContainerID, ( err, res )=>{
+
+      let stat_code = res.statusCode;
+      let err_message = util.format( 'Incorrect status code: %s', stat_code );
+      expect( stat_code >= 200 && stat_code < 300 ).toBeTruthy( err_message );
+      done();
+
+    } );
+
+  } );
+
+  /**
+   * Sends a request and returns JSON body and response code.
+   * 
+   * @param {object} requestParams Request params
+   * @param {function} next Callback
+   * @returns {void} 
+   */
+  function getFullResponse( requestParams, next ){
+
+    http.request( 
+      requestParams, 
+      ( res )=>{
+
+        try{
+
+          res.pipe( parseBody() )
+          .on( 'data', ( body )=>{
+
+            next( null, {
+              statusCode: res.statusCode,
+              jsonBody:   body,
+            } );
+
+          } );
+          
+        }catch( err ){
+
+          next( err );
+
+        }
+
+      } ).end();
+  }
+
 } );
 
 /**
@@ -55,29 +120,6 @@ describe( 'Asynchronous specs Tutorial', ()=>{
  * -----------------------------------------------
  * 
  */
-
-/**
- * 
- * @param {object} requestParams The request parameters
- * @returns {void}
- */
-function doRequestAndReturnJSON( requestParams ){
-
-  http.request( 
-    requestParams, 
-    ( res )=>{
-
-      res.pipe( parseBody() )
-      .on( 'data', ( body )=>{
-        
-        container_id = body.container;
-        container_url = util.format( uploads_url_second, container_id );
-      
-      } );
-
-    } ).end();
-
-}
 
 /**
  * Returns a Transform that parses the JSON response

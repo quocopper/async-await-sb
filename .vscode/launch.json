@@ -15,10 +15,11 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Launch binary-test-sandbox",
-            "program": "${workspaceRoot}/app/binary-upload-test-sandbox.js",
+            "name": "Launch combined streams app",
+            "program": "${workspaceRoot}/app/tutorials/archive.js",
             "cwd": "${workspaceRoot}",
-            "protocol": "inspector"
+            "protocol": "inspector",
+            "args": [ "mypassword", "file2.txt" ]
         },
         {
             "type": "node",
