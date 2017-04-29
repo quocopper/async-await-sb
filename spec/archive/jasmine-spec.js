@@ -4,9 +4,9 @@ const uploads_url = 'http://quoc-virtualbox:3002/uploads?onUploaded=http%3A%2F%2
 const uploads_url_second = 'http://quoc-virtualbox:3002/uploads/%s/upload?onUploaded=http%3A%2F%2Fquoc-virtualbox%3A3001%2Fimporters%2Fasset-types%2F%7Bcontainer%7D';
 const util = require( 'util' );
 const Transform = require( 'stream' ).Transform;
-const fs = require( 'fs' );
 
 let container_url;
+let container_id;
 let status_code;
 
 describe( 'POST to /uploads end point', ()=>{
@@ -17,7 +17,7 @@ describe( 'POST to /uploads end point', ()=>{
   
   beforeAll( ( done )=>{
 
-    getFullResponse( postToUploads, null, null, ( err, result )=>{
+    getFullResponse( postToUploads, ( err, result )=>{
 
       if( err ){
 
@@ -47,13 +47,16 @@ describe( 'POST to /uploads end point', ()=>{
     // let postData = require('querystring').stringify({'msg': 'Hello World!'});
 
     postToUploadContainerID.method = 'post';
+    // postToUploadContainerID.headers = {
+    //   'Content-Type':   'application/x-www-form-urlencoded',
+    //   'Content-Length': Buffer.byteLength( 'postData' )
+    // };
     
-    const uploadFile = 
-    getFullResponse( postToUploadContainerID, null, null, ( err, res )=>{
+    getFullResponse( postToUploadContainerID, ( err, res )=>{
 
       let stat_code = res.statusCode;
-      let err_message = util.format( 'Incorrect status code (%s) when posting to: %s', stat_code, container_url );
-      expect( stat_code >= 200 && stat_code < 300 ).toBe( true, err_message );
+      let err_message = util.format( 'Incorrect status code: %s', stat_code );
+      expect( stat_code >= 200 && stat_code < 300 ).toBeTruthy( err_message );
       done();
 
     } );
@@ -61,18 +64,17 @@ describe( 'POST to /uploads end point', ()=>{
   } );
 
   /**
-   * 
    * Sends a request and returns JSON body and response code.
    * 
    * @param {object} requestParams Request params
    * @param {function} next Callback
-   * @returns {void} parsed JSON body (if it exists)
-   * @param {any} payload The payload
-   * @param {any} file The binary to upload
+   * @returns {void} 
    */
-  function getFullResponse( requestParams, payload, file, next ){
+  function getFullResponse( requestParams, next ){
 
-    const req = http.request( requestParams, (res )=>{
+    http.request( 
+      requestParams, 
+      ( res )=>{
 
         try{
 
@@ -92,23 +94,7 @@ describe( 'POST to /uploads end point', ()=>{
 
         }
 
-      } );
-
-      // Payload
-      if( payload ){
-
-        req.write( payload );
-
-      }
-
-      // Binary
-      if( file ){
-
-        req.write( file );
-
-      } 
-
-      req.end();
+      } ).end();
   }
 
 } );
