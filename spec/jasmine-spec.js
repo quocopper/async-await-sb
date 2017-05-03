@@ -5,6 +5,11 @@ const uploads_url_second = 'http://quoc-virtualbox:3002/uploads/%s/upload?onUplo
 const util = require( 'util' );
 const Transform = require( 'stream' ).Transform;
 const fs = require( 'fs' );
+const querystring = require( 'querystring' );
+const path = require( 'path' );
+const FormData = require( 'form-data' );
+const CHUNK_MAX_SIZE = 1048766;
+const {ImporterClient, UploadClient} = require('./util/upload-client');
 
 let container_url;
 let status_code;
@@ -44,12 +49,26 @@ describe( 'POST to /uploads end point', ()=>{
     const postToUploadContainerID = url.parse( container_url );
 
     // See: https://nodejs.org/api/http.html#http_class_http_clientrequest
-    // let postData = require('querystring').stringify({'msg': 'Hello World!'});
-
-    postToUploadContainerID.method = 'post';
     
-    const uploadFile = fs.createReadStream( './test-data/AssetTypesImporter.xlsx' );
-    getFullResponse( postToUploadContainerID, null, uploadFile, ( err, res )=>{
+    // const uploadFile = JSON.stringify(fs.createReadStream( './test-data/AssetTypesImporter.xlsx' ));
+    const uploadFile = fs.readFileSync( '/home/quoc/async-await-sb/spec/test-data/AssetTypesImporter.xlsx', getFullResponse );
+    const postData = querystring.stringify( uploadFile );
+    
+    postToUploadContainerID.method = 'post';
+
+    formData = new FormData();
+    formData.append( 'file', uploadFile );
+
+    let formDataHeaders = formData.getHeaders();
+
+    postToUploadContainerID.headers = {
+      
+      'Content-Type': formDataHeaders['content-type']
+      // 'Content-Length': CHUNK_MAX_SIZE
+
+    };
+
+    getFullResponse( postToUploadContainerID, null, postData, ( err, res )=>{
 
       let stat_code = res.statusCode;
       let err_message = util.format( 'Incorrect status code (%s) when posting to: %s', stat_code, container_url );
@@ -61,8 +80,7 @@ describe( 'POST to /uploads end point', ()=>{
   } );
 
   /**
-   * 
-   * Sends a request and returns JSON body and response code.
+   * Sends a request and returns an Object containing the Server's response
    * 
    * @param {object} requestParams Request params
    * @param {function} next Callback
@@ -72,7 +90,7 @@ describe( 'POST to /uploads end point', ()=>{
    */
   function getFullResponse( requestParams, payload, file, next ){
 
-    const req = http.request( requestParams, (res )=>{
+    const req = http.request( requestParams, ( res )=>{
 
         try{
 
@@ -104,7 +122,7 @@ describe( 'POST to /uploads end point', ()=>{
       // Binary
       if( file ){
 
-        req.write( file );
+        req.write( file.slice( 0, CHUNK_MAX_SIZE ) );
 
       } 
 
@@ -112,6 +130,21 @@ describe( 'POST to /uploads end point', ()=>{
   }
 
 } );
+
+/**
+ *
+ * 
+ * @param {Buffer} file The file to slice into chunks
+ */
+function sliceFile( file ){
+  return Promise( ( resolve, reject )=>{
+    try{
+
+    }catch( err ){
+      reject();
+    }
+  } );
+}
 
 /**
  * 
