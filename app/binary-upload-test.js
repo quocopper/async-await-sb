@@ -1,83 +1,29 @@
-const debugMode = true;
+// RADAR: There may be a bunch of unused modules and constants
 const http = require( 'http' );
 const url = require( 'url' );
-const uploads_url = 'http://quoc-virtualbox:3002/uploads?onUploaded=http%3A%2F%2Fquoc-virtualbox%3A3001%2Fimporters%2Fasset-types%2F%7Bcontainer%7D';
-const uploads_url_second = 'http://quoc-virtualbox:3002/uploads/%s/upload?onUploaded=http%3A%2F%2Fquoc-virtualbox%3A3001%2Fimporters%2Fasset-types%2F%7Bcontainer%7D';
-const postParams = url.parse( uploads_url );
 const util = require( 'util' );
 const Transform = require( 'stream' ).Transform;
-
-let container_url;
-let container_id;
-
-postParams.method = 'post';
-
-function logDebug( ... debugStrings ){
-
-  if( debugMode ){
-
-    console.log( debugStrings.join( ' ' ) );
-
-  }
-
-}
+const just = require( 'tessa-common/lib/stream/just' );
+const path = require( 'path' );
+const fs = require( 'fs' );
+const uploadsURL = 'http://quoc-virtualbox:3002/uploads?onUploaded=http%3A%2F%2Fquoc-virtualbox%3A3001%2Fimporters%2Fasset-types%2F%7Bcontainer%7D';
+const filePath = 'spec/test-data/AssetTypesImporter.xlsx';
 
 /**
- * Attempt to refactor code below.
+ * Posts a the uploads endpoint and returns the response
  */
-function doRequestAndReturnJSON( requestParams, myCallback ){
-  
-  http.request(
-    requestParams,
-    ( res )=>{
-      
-      res.pipe( parseBody() )
-      .on( 'data', ( body )=>{
-        return body;
-      } );
+function postWithoutPayload(){
 
-  } ).end();
-}
-
-// container_id = doRequestAndReturnJSON( postParams );
-// console.log( 'container:', container_id );
-
-/**
- * POST to /uploads and store the created container ID.
- */
-http.request( 
-  postParams, 
-  ( res )=>{
-
-    res.pipe( parseBody() )
-    .on( 'data', ( body )=>{
-      
-      container_id = body.container;
-      container_url = util.format( uploads_url_second, container_id );
-      logDebug( 'Container ID:', container_id, '\nContainer URL:', container_url );
-    
-    } );
-
-  } ).end( null, null, null );
-
-function parseBody(){
-
-  const accumulator = [];
-  const myTransform = Transform( {
-    transform, flush, readableObjectMode: true
-  } );
-
-  function transform( chunk, encoding, myCallback ){
-    
-    accumulator.push( chunk );
-
+  // This transform method is never called
+  function transform( requestContext, encoding, next ){
+   
     try{
 
-      process.nextTick( myCallback );
+      postToURL( requestContext.requestURL, next );
 
     }catch( err ){
       
-      return myCallback( err );
+      return next( err );
 
     }
 
@@ -85,24 +31,68 @@ function parseBody(){
 
   function flush( done ){
 
-    const bodyStr = Buffer.concat( accumulator ).toString();
-    let parsed;
-
-    try{
-
-      parsed = JSON.parse( bodyStr );
-
-    }catch( err ){
-
-      return done( err );
-
-    }
-
-    this.push( parsed );
     process.nextTick( done );
 
   }
 
-  return myTransform;
+  return Transform( {
+    transform, flush, readableObjectMode: true
+  } );
 
 }
+
+/**
+ * Helper method to return the JSON response from a POST request
+ */
+function postToURL( requestURL, next ){
+
+  const options = url.parse( requestURL );
+
+  options.method = 'post';
+
+  http.request( options, ( res )=>{
+
+    let statusMessage;
+    
+    try{
+      
+      statusMessage = JSON.parse( res.statusMessage );
+
+    }catch( err ){
+
+      return next( err );
+
+    }
+
+    next( statusMessage );
+    
+  } ).end();
+}
+
+/**
+ * Uploads a file to the specified URL
+ * 
+ * @param {*} requestURL 
+ * @param {*} filePath 
+ * @param {*} done 
+ */
+function uploadFile( requestURL, filePath, done ){
+
+  const requestContext = { 
+    requestURL: requestURL,
+    filePath:   filePath
+  };
+
+  // TODO: Pipe some more streams...
+  just( requestContext )
+  .pipe( postWithoutPayload() )
+  .on( 'error', done )
+  .on( 'finish', done );
+
+}
+
+uploadFile( uploadsURL, filePath, ()=>{
+
+  console.log( 'something happened?!' );
+
+} );

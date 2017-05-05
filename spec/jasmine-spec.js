@@ -10,6 +10,7 @@ const path = require( 'path' );
 const FormData = require( 'form-data' );
 const CHUNK_MAX_SIZE = 1048766;
 const {ImporterClient, UploadClient} = require('./util/upload-client');
+const just = require( 'tessa-common/lib/stream/just' );
 
 let container_url;
 let status_code;
@@ -38,12 +39,6 @@ describe( 'POST to /uploads end point', ()=>{
 
   } );
 
-  it( 'the initial POST request to return 200.', ()=>{
-    
-    expect( status_code ).toBe( 200, util.format( 'Invalid response code: %s', status_code ) );
-
-  } );
-
   it( 'user should be able to upload to the correct URL', ( done )=>{
 
     const postToUploadContainerID = url.parse( container_url );
@@ -51,7 +46,7 @@ describe( 'POST to /uploads end point', ()=>{
     // See: https://nodejs.org/api/http.html#http_class_http_clientrequest
     
     // const uploadFile = JSON.stringify(fs.createReadStream( './test-data/AssetTypesImporter.xlsx' ));
-    const uploadFile = fs.readFileSync( '/home/quoc/async-await-sb/spec/test-data/AssetTypesImporter.xlsx', getFullResponse );
+    const uploadFile = just.( '/home/quoc/async-await-sb/spec/test-data/AssetTypesImporter.xlsx', getFullResponse );
     const postData = querystring.stringify( uploadFile );
     
     postToUploadContainerID.method = 'post';
