@@ -10,6 +10,7 @@
   "license": "ISC",
   "description": "Async Sandbox",
   "dependencies": {
+    "async": "^2.4.0",
     "bluebird": "^3.5.0",
     "jasmine": "^2.5.3",
     "multipipe": "^1.0.2",

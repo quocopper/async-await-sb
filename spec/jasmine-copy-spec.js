@@ -1,125 +1,81 @@
-const http = require( 'http' );
-const url = require( 'url' );
-const uploads_url = 'http://www.easports.com/fifa/ultimate-team/api/fut/item';
-const uploads_url_second = '';
+'use strict';
+
+const https = require( 'https' );
 
 const util = require( 'util' );
-const Transform = require( 'stream' ).Transform;
 
-let container_url;
-let player_id;
+const just = require( 'tessa-common/lib/stream/just' );
 
-describe( 'Test ItemDB', ()=>{
+const apply = require( 'tessa-common/lib/stream/apply' );
 
-  const getParams = url.parse( uploads_url );
+const Passthrough = require( 'stream' ).PassThrough;
 
-  getParams.method = 'get';
-  
-  beforeAll( ( done )=>{
+const eaStrings = [ 'easports', 'ea.com' ];
 
-    doRequestAndReturnJSON( getParams, ( body )=>{
-
-      container_url = body;
-      player_id = body.items[0].commonName;
-      done();
-
-    } );
-
-  } );
-
-  it( 'the container id better be non-empty', ()=>{
-    
-    expect( player_id ).not.toBeTruthy( 'Container ID should be valid.' );
-
-  } );
-
-  // it( 'the url should include the container id', ()=>{
-    
-  //   expect( container_url ).toContain( util.format( 'uploads/%s/upload?', player_id ), 
-  //   'URL should container the newly created container ID.' );
-
-  // } );
-
-} );
-
-/**
- * 
- * -----------------------------------------------
- * || Code below to be put into separate module ||
- * -----------------------------------------------
- * 
- */
-
-/**
- * @param {function} next Some callback function
- * @param {object} requestParams The request parameters
- * @returns {void}
- */
-function doRequestAndReturnJSON( requestParams, next ){
-
-  http.request( 
-    requestParams,
-    ( res )=>{
-
-      res.pipe( parseBody() )
-      .on( 'data', ( err, body )=>{
-        
-        next( err, body );
-      
-      } );
-
-    } ).end();
-
+function addExclamations( inString, next ){
+  try{
+    process.nextTick( next( null, addExclamationsSync( inString ) ) );
+  }catch( err ){
+    return err;
+  }
 }
 
-/**
- * Returns a Transform that parses the JSON response
- * 
- * @returns{object} Returns a Transform that parses the JSON response
- */
-function parseBody(){
-
-  const accumulator = [];
-  const myTransform = Transform( {
-    transform, flush, readableObjectMode: true
-  } );
-
-  function transform( chunk, encoding, myCallback ){
-    
-    accumulator.push( chunk );
-
-    try{
-
-      process.nextTick( myCallback );
-
-    }catch( err ){
-      
-      return myCallback( err );
-
-    }
-
+function addAsterisks( inString, next ){
+  try{
+    process.nextTick( next( null, addAsterisksSync( inString ) ) );
+  }catch( err ){
+    return err;
   }
-
-  function flush( done ){
-
-    const bodyStr = Buffer.concat( accumulator ).toString();
-    let parsed;
-
-    try{
-
-      parsed = JSON.parse( bodyStr );
-
-    }catch( err ){
-
-      return done( err );
-
-    }
-
-    this.push( parsed );
-    process.nextTick( done );
-
-  }
-
-  return myTransform;
-
 }
+
+function addExclamationsSync( inString ){
+  return inString + '!!!';
+}
+
+function addAsterisksSync( inString ){
+  return '**' + inString;
+}
+
+const addExclamationTransformStream = apply( addExclamations ); 
+
+const addAsteriskTransformStream = apply( addAsterisks );
+
+function runScript(){
+
+  just( ...eaStrings )
+  .on( 'error', ( err, next )=>{ 
+  } )
+  .pipe( new Passthrough() )
+  .on( 'data', ( origURL )=>{ 
+    console.log( 'Passthrough 1 data:', origURL.toString() );
+  } )
+  .on( 'error', ( err, next )=>{ 
+    console.log( err );
+  } )
+  .pipe( addExclamationTransformStream )
+  .on( 'error', ( err, next )=>{ 
+    console.log( err );
+  } )
+  .pipe( new Passthrough() )
+  .on( 'data', ( postExc )=>{ 
+    console.log( 'Added (!):', postExc.toString() );
+  } )
+  .on( 'error', ( err, next )=>{ 
+    console.log( err );
+  } )
+    .pipe( addAsteriskTransformStream )
+  .on( 'error', ( err, next )=>{ 
+    console.log( err );
+  } )
+  .pipe( new Passthrough() )
+  .on( 'data', ( postAst )=>{ 
+    console.log( 'Added (*):', postAst.toString() );
+  } )
+  .on( 'error', ( err, next )=>{ 
+    console.log( err );
+  } )
+  .on( 'finish', ()=>{ console.log( 'We\'re done' ); } )
+  .resume();
+}
+
+runScript();

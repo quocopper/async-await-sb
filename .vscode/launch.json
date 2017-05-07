@@ -32,6 +32,14 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "Launch Jasmine copy spec debug",
+            "program": "${workspaceRoot}/spec/jasmine-copy-spec.js",
+            "cwd": "${workspaceRoot}",
+            "protocol": "inspector"
+        },
+        {
+            "type": "node",
+            "request": "launch",
             "name": "Launch Jasmine Tests",
             "program": "${workspaceRoot}/node_modules/cl-node-dev-tools/run-tests.js",
             "cwd": "${workspaceRoot}",
