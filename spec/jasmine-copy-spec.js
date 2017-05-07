@@ -10,35 +10,35 @@ const apply = require( 'tessa-common/lib/stream/apply' );
 
 const Passthrough = require( 'stream' ).PassThrough;
 
-const eaStrings = [ 'easports', 'ea.com' ];
+const eaStrings = [ 'easports.com', 'ea.com' ];
 
-function addExclamations( inString, next ){
+function formatHost( inString, next ){
   try{
-    process.nextTick( next( null, addExclamationsSync( inString ) ) );
+    process.nextTick( next( null, addHostname( inString ) ) );
   }catch( err ){
     return err;
   }
 }
 
-function addAsterisks( inString, next ){
+function formatProtocol( inString, next ){
   try{
-    process.nextTick( next( null, addAsterisksSync( inString ) ) );
+    process.nextTick( next( null, appendProtocol( inString ) ) );
   }catch( err ){
     return err;
   }
 }
 
-function addExclamationsSync( inString ){
-  return inString + '!!!';
+function addHostname( inString ){
+  return 'www.' + inString;
 }
 
-function addAsterisksSync( inString ){
-  return '**' + inString;
+function appendProtocol( inString ){
+  return 'https://' + inString;
 }
 
-const addExclamationTransformStream = apply( addExclamations ); 
+const formatHostTransformStream = apply( formatHost ); 
 
-const addAsteriskTransformStream = apply( addAsterisks );
+const formatProtocolTransformStream = apply( formatProtocol );
 
 function runScript(){
 
@@ -47,29 +47,29 @@ function runScript(){
   } )
   .pipe( new Passthrough() )
   .on( 'data', ( origURL )=>{ 
-    console.log( 'Passthrough 1 data:', origURL.toString() );
+    console.log( 'Initial string:', origURL.toString() );
   } )
   .on( 'error', ( err, next )=>{ 
     console.log( err );
   } )
-  .pipe( addExclamationTransformStream )
-  .on( 'error', ( err, next )=>{ 
-    console.log( err );
-  } )
-  .pipe( new Passthrough() )
-  .on( 'data', ( postExc )=>{ 
-    console.log( 'Added (!):', postExc.toString() );
-  } )
-  .on( 'error', ( err, next )=>{ 
-    console.log( err );
-  } )
-    .pipe( addAsteriskTransformStream )
+  .pipe( formatHostTransformStream )
   .on( 'error', ( err, next )=>{ 
     console.log( err );
   } )
   .pipe( new Passthrough() )
-  .on( 'data', ( postAst )=>{ 
-    console.log( 'Added (*):', postAst.toString() );
+  .on( 'data', ( urlString )=>{ 
+    console.log( 'Added host:', urlString.toString() );
+  } )
+  .on( 'error', ( err, next )=>{ 
+    console.log( err );
+  } )
+    .pipe( formatProtocolTransformStream )
+  .on( 'error', ( err, next )=>{ 
+    console.log( err );
+  } )
+  .pipe( new Passthrough() )
+  .on( 'data', ( urlString )=>{ 
+    console.log( 'Added protocol:', urlString.toString() );
   } )
   .on( 'error', ( err, next )=>{ 
     console.log( err );
