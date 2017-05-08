@@ -32,8 +32,8 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Launch Jasmine copy spec debug",
-            "program": "${workspaceRoot}/spec/jasmine-copy-spec.js",
+            "name": "Launch Apply Stream Test",
+            "program": "${workspaceRoot}/app/apply-stream-test.js",
             "cwd": "${workspaceRoot}",
             "protocol": "inspector"
         },

@@ -87,7 +87,7 @@ function formatURLs( next ){
   .pipe( new Passthrough() )
   .on( 'data', ( origURL )=>{ 
 
-    logMsg( null, util.format( 'Initial string:%s', origURL.toString() ) );
+    logMsg( null, util.format( 'Initial string:', origURL.toString() ) );
   
   } )
   .on( 'error', ( err )=>{ 
@@ -104,7 +104,7 @@ function formatURLs( next ){
   .pipe( new Passthrough() )
   .on( 'data', ( urlString )=>{ 
 
-    logMsg( null, util.format( 'Added host:%s', urlString.toString() ) );
+    logMsg( null, util.format( 'Added host:', urlString.toString() ) );
 
   } )
   .on( 'error', ( err )=>{ 
@@ -122,7 +122,7 @@ function formatURLs( next ){
   .on( 'data', ( urlString )=>{ 
 
     finalURL = urlString.toString();
-    logMsg( null, util.format( 'Added protocol:%s', finalURL ) );
+    logMsg( null, util.format( 'Added protocol:', finalURL ) );
 
   } )
   .on( 'error', ( err )=>{ 
