@@ -1,6 +1,6 @@
 'use strict';
 
-function createJSONParsingStream(){
+function createJSONResonseStream( requestOptions,  ){
 
   const chunkAccumulator = [];
 
@@ -8,8 +8,7 @@ function createJSONParsingStream(){
     
     try{
       
-      chunkAccumulator.push( chunk );
-      process.nextTick( next );
+
 
     }catch( err ){
 
@@ -23,10 +22,6 @@ function createJSONParsingStream(){
 
     try {
       
-      const responseBody = Buffer.concat( chunkAccumulator ).toString();
-      const jsonBody = JSON.parse( responseBody );
-      
-      this.push( jsonBody );
       process.nextTick( done );
 
     } catch( err ){
@@ -45,4 +40,4 @@ function createJSONParsingStream(){
 
 }
 
-module.exports = createJSONParsingStream;
+module.exports = createJSONResonseStream;
