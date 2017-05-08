@@ -46,7 +46,7 @@ describe( 'POST to /uploads end point', ()=>{
     // See: https://nodejs.org/api/http.html#http_class_http_clientrequest
     
     // const uploadFile = JSON.stringify(fs.createReadStream( './test-data/AssetTypesImporter.xlsx' ));
-    const uploadFile = just.( '/home/quoc/async-await-sb/spec/test-data/AssetTypesImporter.xlsx', getFullResponse );
+    const uploadFile = just( '/home/quoc/async-await-sb/spec/test-data/AssetTypesImporter.xlsx', getFullResponse );
     const postData = querystring.stringify( uploadFile );
     
     postToUploadContainerID.method = 'post';
