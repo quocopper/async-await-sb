@@ -7,13 +7,79 @@ const Transform = require( 'stream' ).Transform;
 const fs = require( 'fs' );
 const querystring = require( 'querystring' );
 const path = require( 'path' );
-const FormData = require( 'form-data' );
 const CHUNK_MAX_SIZE = 1048766;
-const {ImporterClient, UploadClient} = require('./util/upload-client');
 const just = require( 'tessa-common/lib/stream/just' );
+const post = require( '../util/service-request/post' );
 
 let container_url;
 let status_code;
+
+// Re-use post & return JSON.
+
+describe( 'Post using existing library',  ()=>{
+
+  /**
+   * 1. Post to /uploads
+   * 2. Post to /uploads/<container>/upload
+   *    a) Create Read File Stream.
+   *    b) Post each chunk -> get response
+   * 3. 
+   */
+  it( 'Should be able to chain together POST requests', ( done )=>{
+
+    // Should be a full request context object 
+    const requestContexts = [ 
+      { payload: null } 
+    ];
+
+    const fetchContainerStream = post.asStream( null, uploads_url, {} );
+    const payloadStream = just( requestContexts );
+
+    payloadStream
+    .on( 'error', ( err )=>{
+      const x = 0;
+    } )
+    .on( 'data', ( data )=>{
+
+      const buffer = data;
+      const j = 0;
+      done();
+
+    } )
+    .pipe( fetchContainerStream )
+    .on( 'error', ( err )=>{} )
+    .on( 'data', ( data )=>{
+
+      const buffer = data;
+      const j = 0;
+      done();
+
+    } )
+    // Pipe the resulting container ID into a Stream that will upload to that container.
+    // Also, chunk the XL file into smaller pieces of data.
+    .pipe()
+    .on( 'finish', ()=>{} );
+
+  } );
+
+} )
+
+// Separate module
+function createContainerID( requestContext, ){
+
+}
+
+/**
+ * Uploads the specified file to the given endpoint.
+ * 
+ * @param {String} endpoint 
+ * @param {String} filePath 
+ */
+function uploadFile( { endpoint, filePath } ){
+
+  // Do stuff 
+}
+
 
 describe( 'POST to /uploads end point', ()=>{
 
@@ -51,15 +117,7 @@ describe( 'POST to /uploads end point', ()=>{
     
     postToUploadContainerID.method = 'post';
 
-    formData = new FormData();
-    formData.append( 'file', uploadFile );
-
-    let formDataHeaders = formData.getHeaders();
-
     postToUploadContainerID.headers = {
-      
-      'Content-Type': formDataHeaders['content-type']
-      // 'Content-Length': CHUNK_MAX_SIZE
 
     };
 

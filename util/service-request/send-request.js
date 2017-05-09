@@ -15,7 +15,7 @@ const http = require( 'http' );
  *
  * @returns {void}
  */
-function sendRequest( requestOptions,  requestData, next ){
+function sendRequest( requestOptions, requestData, next ){
 
   http.request( requestOptions, ( res )=>{
 

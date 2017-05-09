@@ -4,16 +4,15 @@ const path
 const querystring
   = require( 'querystring' );
 
-const Constants
-  = require( '../constants' );
-
 const sendRequest
   = require( './send-request' );
 
-const baseRequestOptions = Object.assign(
-  { headers: { accept: 'application/json', 'content-type': 'application/json' } },
-  Constants.externalResourceRequestOptions
-);
+const url 
+  = require( 'url' );
+
+const baseRequestOptions = Object.assign( { 
+  headers: { accept: 'application/json', 'content-type': 'application/json' } 
+} );
 
 /**
  *
@@ -35,17 +34,18 @@ const baseRequestOptions = Object.assign(
  *
  * @returns {void}
  */
-function request( { query, payload, method }, endpoint, headers = {}, next  ){
+function request( { query, payload, method }, fullURL, headers = {}, next  ){
 
   const queryAsString
     = query
     ? `?${ querystring.stringify( query ) }`
     : '';
 
-  const requestOptions = Object.assign( {}, baseRequestOptions, {
-    method,
-    path: path.posix.join( baseRequestOptions.path, endpoint ).concat( queryAsString )
-  } );
+  const requestOptions = Object.assign( 
+    {}, 
+    baseRequestOptions, 
+    { method }, 
+    url.parse( fullURL ) );
 
   const requestData
     = payload
@@ -81,7 +81,7 @@ function request( { query, payload, method }, endpoint, headers = {}, next  ){
  * @returns {object}
  *   transform stream, taking payload as in and the result as an out
  */
-function asStream( { query, method }, endpoint, headers, maxSimultaneousRequests = 3 ){
+function asStream( { query, method }, fullURL, headers, maxSimultaneousRequests = 3 ){
 
   let isActive = false;
   let delayedDone;
@@ -90,7 +90,7 @@ function asStream( { query, method }, endpoint, headers, maxSimultaneousRequests
 
     isActive = true;
 
-    request( { query, payload, method }, endpoint, headers, ( err, result )=>{
+    request( { query, payload, method }, fullURL, headers, ( err, result )=>{
 
       isActive = false;
 

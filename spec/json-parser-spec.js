@@ -12,6 +12,7 @@ const CHUNK_MAX_SIZE = 1048766;
 const {ImporterClient, UploadClient} = require('./util/upload-client');
 const just = require( 'tessa-common/lib/stream/just' );
 const jsonParser = require( './../app/json-response-body-parser' );
+const post = require( '../util/external-service-request/post' );
 
 let container_url;
 let status_code;
@@ -153,64 +154,4 @@ function sliceFile( file ){
       reject();
     }
   } );
-}
-
-/**
- * 
- * -----------------------------------------------
- * || Code below to be put into separate module ||
- * -----------------------------------------------
- * 
- */
-
-/**
- * Returns a Transform that parses the JSON response
- * 
- * @returns{object} Returns a Transform that parses the JSON response
- */
-function parseBody(){
-
-  const accumulator = [];
-  const myTransform = Transform( {
-    transform, flush, readableObjectMode: true
-  } );
-
-  function transform( chunk, encoding, myCallback ){
-    
-    accumulator.push( chunk );
-
-    try{
-
-      process.nextTick( myCallback );
-
-    }catch( err ){
-      
-      return myCallback( err );
-
-    }
-
-  }
-
-  function flush( done ){
-
-    const bodyStr = Buffer.concat( accumulator ).toString();
-    let parsed;
-
-    try{
-
-      parsed = JSON.parse( bodyStr );
-
-    }catch( err ){
-
-      return done( err );
-
-    }
-
-    this.push( parsed );
-    process.nextTick( done );
-
-  }
-
-  return myTransform;
-
 }
