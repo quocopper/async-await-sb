@@ -4,7 +4,7 @@ function createJSONParsingStream(){
 
   const chunkAccumulator = [];
 
-  function transform( chunk, encoding, next ){
+  function transform( chunk, _, next ){
     
     try{
       

@@ -29,43 +29,36 @@ describe( 'Post using existing library',  ()=>{
 
     // Should be a full request context object 
     const requestContexts = [ 
-      { payload: null } 
+      { 
+        payload: null,
+        fullURL: uploads_url
+      } 
     ];
 
-    const fetchContainerStream = post.asStream( null, uploads_url, {} );
-    const payloadStream = just( requestContexts );
+    // const fetchContainerStream = post.asStream( null, uploads_url, null );
+    const fetchContainerStream = require( '../util/service-request' );
+    const payloadStream = just( ...requestContexts );
 
     payloadStream
     .on( 'error', ( err )=>{
       const x = 0;
     } )
-    .on( 'data', ( data )=>{
-
-      const buffer = data;
-      const j = 0;
-      done();
-
-    } )
     .pipe( fetchContainerStream )
     .on( 'error', ( err )=>{} )
     .on( 'data', ( data )=>{
-
-      const buffer = data;
-      const j = 0;
-      done();
-
+      const contID = data._links.upload.href;
+      const i = 0;
     } )
     // Pipe the resulting container ID into a Stream that will upload to that container.
     // Also, chunk the XL file into smaller pieces of data.
-    .pipe()
-    .on( 'finish', ()=>{} );
+    .on( 'finish', ()=>{ done(); } );
 
   } );
 
 } )
 
 // Separate module
-function createContainerID( requestContext, ){
+function createContainerID( requestContext ){
 
 }
 

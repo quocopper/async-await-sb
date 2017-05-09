@@ -9,10 +9,9 @@ const querystring = require( 'querystring' );
 const path = require( 'path' );
 const FormData = require( 'form-data' );
 const CHUNK_MAX_SIZE = 1048766;
-const {ImporterClient, UploadClient} = require('./util/upload-client');
 const just = require( 'tessa-common/lib/stream/just' );
 const jsonParser = require( './../app/json-response-body-parser' );
-const post = require( '../util/external-service-request/post' );
+const post = require( '../util/service-request/post' );
 
 let container_url;
 let status_code;
