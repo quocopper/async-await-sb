@@ -7,12 +7,9 @@ const querystring
 const sendRequest
   = require( './send-request' );
 
-const url 
-  = require( 'url' );
-
-const baseRequestOptions = Object.assign( { 
-  headers: { accept: 'application/json', 'content-type': 'application/json' } 
-} );
+const baseRequestOptions = Object.assign(
+  { headers: { accept: 'application/json', 'content-type': 'application/json' } }
+);
 
 /**
  *
@@ -23,8 +20,8 @@ const baseRequestOptions = Object.assign( {
  *   payload json object to be sent in request body
  *   http method to use when sending the request
  *
- * @param {string} endpoint
- *   endpoint to send the request to
+ * @param {string} options
+ *   the options to include in the request
  *
  * @param {object} headers
  *   header fields to include in request
@@ -34,18 +31,17 @@ const baseRequestOptions = Object.assign( {
  *
  * @returns {void}
  */
-function request( { query, payload, method }, fullURL, headers = {}, next  ){
+function request( { query, payload, method }, options, headers = {}, next  ){
 
   const queryAsString
     = query
     ? `?${ querystring.stringify( query ) }`
     : '';
 
-  const requestOptions = Object.assign( 
-    {}, 
-    baseRequestOptions, 
-    { method }, 
-    url.parse( fullURL ) );
+  const requestOptions = Object.assign( {}, baseRequestOptions, options, { 
+    method,
+    path: options.path.concat( queryAsString )
+  } );
 
   const requestData
     = payload
@@ -69,8 +65,8 @@ function request( { query, payload, method }, fullURL, headers = {}, next  ){
  * @param {object} query
  *   queryObject containing fields to be set in query string
  *
- * @param {string} endpoint
- *   endpoint to send the request to
+ * @param {string} options
+ *   the options to include in the request
  *
  * @param {object} headers
  *   header fields to include in request
@@ -81,7 +77,7 @@ function request( { query, payload, method }, fullURL, headers = {}, next  ){
  * @returns {object}
  *   transform stream, taking payload as in and the result as an out
  */
-function asStream( { query, method }, fullURL, headers, maxSimultaneousRequests = 3 ){
+function asStream( { query, method }, options, headers, maxSimultaneousRequests = 3 ){
 
   let isActive = false;
   let delayedDone;
@@ -90,7 +86,7 @@ function asStream( { query, method }, fullURL, headers, maxSimultaneousRequests 
 
     isActive = true;
 
-    request( { query, payload, method }, fullURL, headers, ( err, result )=>{
+    request( { query, payload, method }, options, headers, ( err, result )=>{
 
       isActive = false;
 

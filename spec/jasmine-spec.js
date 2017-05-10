@@ -1,7 +1,6 @@
 const http = require( 'http' );
 const url = require( 'url' );
 const uploads_url = 'http://quoc-virtualbox:3002/uploads?onUploaded=http%3A%2F%2Fquoc-virtualbox%3A3001%2Fimporters%2Fasset-types%2F%7Bcontainer%7D';
-const uploads_url_second = 'http://quoc-virtualbox:3002/uploads/%s/upload?onUploaded=http%3A%2F%2Fquoc-virtualbox%3A3001%2Fimporters%2Fasset-types%2F%7Bcontainer%7D';
 const util = require( 'util' );
 const Transform = require( 'stream' ).Transform;
 const fs = require( 'fs' );
@@ -9,7 +8,9 @@ const querystring = require( 'querystring' );
 const path = require( 'path' );
 const CHUNK_MAX_SIZE = 1048766;
 const just = require( 'tessa-common/lib/stream/just' );
-const post = require( '../util/service-request/post' );
+const post = require( '../util/external-request/post' );
+const createContainerURL = require( '../util/create-container-url' );
+const uploadSpreadsheet = require( '../util/create-container-url' );
 
 let container_url;
 let status_code;
@@ -23,35 +24,42 @@ describe( 'Post using existing library',  ()=>{
    * 2. Post to /uploads/<container>/upload
    *    a) Create Read File Stream.
    *    b) Post each chunk -> get response
-   * 3. 
+   * 3. ???
+   * 4. Profit
    */
   it( 'Should be able to chain together POST requests', ( done )=>{
 
     // Should be a full request context object 
-    const requestContexts = [ 
+    const requestContext =
       { 
         payload: null,
-        fullURL: uploads_url
-      } 
-    ];
+        options: url.parse( uploads_url )
+      };
 
-    // const fetchContainerStream = post.asStream( null, uploads_url, null );
-    const fetchContainerStream = require( '../util/service-request' );
-    const payloadStream = just( ...requestContexts );
+    const requestContextStream = just( requestContext );
+    const createContainerStream = createContainerURL();
+    const uploadSpreadsheetStream = uploadSpreadsheet();
+    
+    let contURL;
 
-    payloadStream
-    .on( 'error', ( err )=>{
-      const x = 0;
-    } )
-    .pipe( fetchContainerStream )
+    requestContextStream
+    .on( 'error', ( err )=>{} )
+    .pipe( createContainerStream )
     .on( 'error', ( err )=>{} )
     .on( 'data', ( data )=>{
-      const contID = data._links.upload.href;
-      const i = 0;
+      contURL = data.containerURL;
     } )
     // Pipe the resulting container ID into a Stream that will upload to that container.
     // Also, chunk the XL file into smaller pieces of data.
-    .on( 'finish', ()=>{ done(); } );
+    .pipe( uploadSpreadsheetStream )
+    .on( 'data', ( data )=>{
+      console.log( data );
+    } )
+    // Upon finish, confirm that the container ID is correct.
+    .on( 'finish', ()=>{ 
+      expect( contURL ).toContain( '/upload?onUploaded=' );
+      done(); 
+    } );
 
   } );
 
@@ -74,108 +82,108 @@ function uploadFile( { endpoint, filePath } ){
 }
 
 
-describe( 'POST to /uploads end point', ()=>{
+// describe( 'POST to /uploads end point', ()=>{
 
-  const postToUploads = url.parse( uploads_url );
+//   const postToUploads = url.parse( uploads_url );
 
-  postToUploads.method = 'post';
+//   postToUploads.method = 'post';
   
-  beforeAll( ( done )=>{
+//   beforeAll( ( done )=>{
 
-    getFullResponse( postToUploads, null, null, ( err, result )=>{
+//     getFullResponse( postToUploads, null, null, ( err, result )=>{
 
-      if( err ){
+//       if( err ){
 
-        return err;
+//         return err;
 
-      }
+//       }
 
-      container_url = result.jsonBody._links.upload.href;
-      status_code = result.statusCode;
-      done();
+//       container_url = result.jsonBody._links.upload.href;
+//       status_code = result.statusCode;
+//       done();
 
-    } );
+//     } );
 
-  } );
+//   } );
 
-  it( 'user should be able to upload to the correct URL', ( done )=>{
+//   it( 'user should be able to upload to the correct URL', ( done )=>{
 
-    const postToUploadContainerID = url.parse( container_url );
+//     const postToUploadContainerID = url.parse( container_url );
 
-    // See: https://nodejs.org/api/http.html#http_class_http_clientrequest
+//     // See: https://nodejs.org/api/http.html#http_class_http_clientrequest
     
-    // const uploadFile = JSON.stringify(fs.createReadStream( './test-data/AssetTypesImporter.xlsx' ));
-    const uploadFile = just( '/home/quoc/async-await-sb/spec/test-data/AssetTypesImporter.xlsx', getFullResponse );
-    const postData = querystring.stringify( uploadFile );
+//     // const uploadFile = JSON.stringify(fs.createReadStream( './test-data/AssetTypesImporter.xlsx' ));
+//     const uploadFile = just( '/home/quoc/async-await-sb/spec/test-data/AssetTypesImporter.xlsx', getFullResponse );
+//     const postData = querystring.stringify( uploadFile );
     
-    postToUploadContainerID.method = 'post';
+//     postToUploadContainerID.method = 'post';
 
-    postToUploadContainerID.headers = {
+//     postToUploadContainerID.headers = {
 
-    };
+//     };
 
-    getFullResponse( postToUploadContainerID, null, postData, ( err, res )=>{
+//     getFullResponse( postToUploadContainerID, null, postData, ( err, res )=>{
 
-      let stat_code = res.statusCode;
-      let err_message = util.format( 'Incorrect status code (%s) when posting to: %s', stat_code, container_url );
-      expect( stat_code >= 200 && stat_code < 300 ).toBe( true, err_message );
-      done();
+//       let stat_code = res.statusCode;
+//       let err_message = util.format( 'Incorrect status code (%s) when posting to: %s', stat_code, container_url );
+//       expect( stat_code >= 200 && stat_code < 300 ).toBe( true, err_message );
+//       done();
 
-    } );
+//     } );
 
-  } );
+//   } );
 
-  /**
-   * Sends a request and returns an Object containing the Server's response
-   * 
-   * @param {object} requestParams Request params
-   * @param {function} next Callback
-   * @returns {void} parsed JSON body (if it exists)
-   * @param {any} payload The payload
-   * @param {any} file The binary to upload
-   */
-  function getFullResponse( requestParams, payload, file, next ){
+  // /**
+  //  * Sends a request and returns an Object containing the Server's response
+  //  * 
+  //  * @param {object} requestParams Request params
+  //  * @param {function} next Callback
+  //  * @returns {void} parsed JSON body (if it exists)
+  //  * @param {any} payload The payload
+  //  * @param {any} file The binary to upload
+  //  */
+  // function getFullResponse( requestParams, payload, file, next ){
 
-    const req = http.request( requestParams, ( res )=>{
+  //   const req = http.request( requestParams, ( res )=>{
 
-        try{
+  //       try{
 
-          res.pipe( parseBody() )
-          .on( 'data', ( body )=>{
+  //         res.pipe( parseBody() )
+  //         .on( 'data', ( body )=>{
 
-            next( null, {
-              statusCode: res.statusCode,
-              jsonBody:   body,
-            } );
+  //           next( null, {
+  //             statusCode: res.statusCode,
+  //             jsonBody:   body,
+  //           } );
 
-          } );
+  //         } );
           
-        }catch( err ){
+  //       }catch( err ){
 
-          next( err );
+  //         next( err );
 
-        }
+  //       }
 
-      } );
+  //     } );
 
-      // Payload
-      if( payload ){
+  //     // Payload
+  //     if( payload ){
 
-        req.write( payload );
+  //       req.write( payload );
 
-      }
+  //     }
 
-      // Binary
-      if( file ){
+  //     // Binary
+  //     if( file ){
 
-        req.write( file.slice( 0, CHUNK_MAX_SIZE ) );
+  //       req.write( file.slice( 0, CHUNK_MAX_SIZE ) );
 
-      } 
+  //     } 
 
-      req.end();
-  }
+  //     req.end();
+  // }
 
-} );
+
 
 /**
  *
