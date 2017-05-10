@@ -1,16 +1,17 @@
 const http = require( 'http' );
 const url = require( 'url' );
-const uploads_url = 'http://quoc-virtualbox:3002/uploads?onUploaded=http%3A%2F%2Fquoc-virtualbox%3A3001%2Fimporters%2Fasset-types%2F%7Bcontainer%7D';
+const uploads_url = 'http://quoc-virtualbox:3002/uploads?onUploaded=http%3A%2F%2Fquoc-virtualbox%3A3001%2Fimporters%2Ffacilities%2F%7Bcontainer%7D';
 const util = require( 'util' );
 const Transform = require( 'stream' ).Transform;
 const fs = require( 'fs' );
 const querystring = require( 'querystring' );
 const path = require( 'path' );
-const CHUNK_MAX_SIZE = 1048766;
+const CHUNK_MAX_SIZE = 1048576;
 const just = require( 'tessa-common/lib/stream/just' );
 const post = require( '../util/external-request/post' );
 const createContainerURL = require( '../util/create-container-url' );
-const uploadSpreadsheet = require( '../util/create-container-url' );
+const uploadSpreadsheet = require( '../util/upload-spreadsheet' );
+const filePath = 'spec/test-data/FacilitiesImporter.xlsx';
 
 let container_url;
 let status_code;
@@ -33,6 +34,7 @@ describe( 'Post using existing library',  ()=>{
     const requestContext =
       { 
         payload: null,
+        filePath: filePath,
         options: url.parse( uploads_url )
       };
 
@@ -53,7 +55,7 @@ describe( 'Post using existing library',  ()=>{
     // Also, chunk the XL file into smaller pieces of data.
     .pipe( uploadSpreadsheetStream )
     .on( 'data', ( data )=>{
-      console.log( data );
+      console.log( data.chunk.length );
     } )
     // Upon finish, confirm that the container ID is correct.
     .on( 'finish', ()=>{ 
@@ -64,11 +66,6 @@ describe( 'Post using existing library',  ()=>{
   } );
 
 } )
-
-// Separate module
-function createContainerID( requestContext ){
-
-}
 
 /**
  * Uploads the specified file to the given endpoint.

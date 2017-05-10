@@ -2,7 +2,6 @@
 
 const post = require( './external-request/post' );
 
-
 function createContainerURL(){
 
   // This stream will receive a REQUEST CONTEXT object from its readable side.
@@ -19,8 +18,8 @@ function createContainerURL(){
         requestContext.containerURL = response._links.upload.href;
         next( null, requestContext );
 
-      } ); 
-   
+      } );
+      
   }
 
   return require( 'stream' ).Transform( {
