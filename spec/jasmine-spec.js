@@ -40,14 +40,14 @@ describe( 'Post using existing library',  ()=>{
     const createContainerStream = createContainerURL();
     const uploadSpreadsheetStream = uploadSpreadsheet();
     
-    let contURL;
+    let containerURL;
 
     requestContextStream
     .on( 'error', ( err )=>{} )
     .pipe( createContainerStream )
     .on( 'error', ( err )=>{} )
     .on( 'data', ( data )=>{
-      contURL = data.containerURL;
+      containerURL = data.containerURL;
     } )
     // Pipe the resulting container ID into a Stream that will upload to that container.
     // Also, chunk the XL file into smaller pieces of data.
@@ -57,7 +57,7 @@ describe( 'Post using existing library',  ()=>{
     } )
     // Upon finish, confirm that the container ID is correct.
     .on( 'finish', ()=>{ 
-      expect( contURL ).toContain( '/upload?onUploaded=' );
+      expect( containerURL ).toContain( '/upload?onUploaded=' );
       done(); 
     } );
 
