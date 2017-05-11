@@ -192,23 +192,6 @@ function uploadFile( { endpoint, filePath } ){
   //     req.end();
   // }
 
-
-
-/**
- *
- * 
- * @param {Buffer} file The file to slice into chunks
- */
-function sliceFile( file ){
-  return Promise( ( resolve, reject )=>{
-    try{
-
-    }catch( err ){
-      reject();
-    }
-  } );
-}
-
 /**
  * 
  * -----------------------------------------------
