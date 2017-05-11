@@ -18,7 +18,6 @@ function generateChunks( filePath, chunkSize ){
   function transform( requestContext, _, next ){
 
     const composedFunction = compose(
-      // asyncify( generateChunks ),
       fs.fstat,
       fs.open.bind( null, requestContext.filePath, 'r' )
     )( ( err, stat )=>{
