@@ -2,7 +2,11 @@
 
 const post = require( './external-request/post' );
 
-function createContainerURL(){
+/**
+ * Takes in a request context as input, POSTs accordingly and then returns the original 
+ * request context along with the response, cancel and finalize URLs appended to it.
+ */
+function uploadChunk(){
 
   // This stream will receive a REQUEST CONTEXT object from its readable side.
   function transform( requestContext, _, next ){
@@ -15,7 +19,7 @@ function createContainerURL(){
 
       post( queryPayload, requestContext.options, requestContext.options.headers, ( err, response )=>{
 
-        requestContext.containerURL = response._links.upload.href;
+        requestContext.links = response._links;
         next( null, requestContext );
 
       } );
@@ -30,4 +34,4 @@ function createContainerURL(){
 
 }
 
-module.exports = createContainerURL;
+module.exports = uploadChunk;

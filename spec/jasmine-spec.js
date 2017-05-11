@@ -8,11 +8,11 @@ const PassThrough = stream.PassThrough;
 const fs = require( 'fs' );
 const querystring = require( 'querystring' );
 const path = require( 'path' );
-const CHUNK_MAX_SIZE = 1048576;
+const MAX_CHUNK_SIZE = 1048576;
 const just = require( 'tessa-common/lib/stream/just' );
-const post = require( '../util/external-request/post' );
-const createContainerURL = require( '../util/create-container-url' );
-const uploadSpreadsheet = require( '../util/upload-spreadsheet' );
+const flatten = require( 'tessa-common/lib/stream/flatten' );
+const createUploadContainer = require( '../util/create-upload-container' );
+const generateChunks = require( '../util/generate-chunks' );
 const filePath = 'spec/test-data/FacilitiesImporter.xlsx';
 
 let container_url;
@@ -33,219 +33,153 @@ describe( 'Post using existing library',  ()=>{
   it( 'Should be able to chain together POST requests', ( done )=>{
 
     // Should be a full request context object 
-    const requestContext =
-      { 
+    const requestContext = { 
         payload: null,
         filePath: filePath,
         options: url.parse( uploads_url )
-      };
+    };
 
-    const requestContextStream = just( requestContext );
-    const createContainerStream = createContainerURL();
-    const uploadSpreadsheetStream = uploadSpreadsheet();
+    fetchUploadLinks( requestContext, ( err, res )=>{
+      console.log( 'Fetched upload links.' );
+      // process.nextTick( uploadChunks.bind( null, res, MAX_CHUNK_SIZE, done ) );
+      process.nextTick( uploadChunks.bind( null, res, MAX_CHUNK_SIZE, done ) );
+    } );
     
-    let containerURL;
-
-    requestContextStream
-    .on( 'error', ( err )=>{} )
-    .pipe( createContainerStream )
-    .on( 'error', ( err )=>{} )
-    .on( 'data', ( data )=>{
-      containerURL = data.containerURL;
-    } )
-    // Pipe the resulting container ID into a Stream that will upload to that container.
-    // Also, chunk the XL file into smaller pieces of data.
-    .pipe( uploadSpreadsheetStream )
-    .on( 'error', ( err )=>{
-      console.log( err );
-    } )
-    .on( 'data', ( data )=>{
-      console.log( `Chunk index: ${JSON.stringify(data[0])}` );
-    } )
-    // .pipe( PassThrough() )
+    // // Pipe the resulting container ID into a Stream that will upload to that container.
+    // // Also, chunk the XL file into smaller pieces of data.
+    // test.pipe( spreadsheedChunksStream )
     // .on( 'error', ( err )=>{
     //   console.log( err );
     // } )
     // .on( 'data', ( data )=>{
-    //   console.log( data.index );
+    //   // console.log( `Chunk index: ${JSON.stringify(data[0])}` );
     // } )
-    // Upon finish, confirm that the container ID is correct.
-    .on( 'finish', ()=>{ 
-      expect( containerURL ).toContain( '/upload?onUploaded=' );
-      done(); 
-    } );
+    // .pipe( flatten() )
+    // .on( 'error', ( err )=>{
+    //   console.log( err );
+    // } )
+    // .on( 'data', ( data )=>{
+    //   console.log( 'data emitted' );
+    // } )
+    // // Upon finish, confirm that the container ID is correct.
+    // .on( 'finish', ()=>{ 
+    //   expect( uploadURL ).toContain( '/upload?onUploaded=' );
+    //   done(); 
+    // } );
 
   } );
 
 } )
 
 /**
- * Uploads the specified file to the given endpoint.
+ * Performs in an initial POST to /uploads to retrieve the corresponding 
+ * container upload URLs and then appends those values to the original 
+ * requestContext object.
  * 
- * @param {String} endpoint 
- * @param {String} filePath 
+ * @param {object} requestContext the original request context
+ * @param {function} next a callback
  */
-function uploadFile( { endpoint, filePath } ){
+function fetchUploadLinks( requestContext, next ){
 
-  // Do stuff 
-}
-
-
-// describe( 'POST to /uploads end point', ()=>{
-
-//   const postToUploads = url.parse( uploads_url );
-
-//   postToUploads.method = 'post';
+  const updatedRequestContext = {};
+  const requestContextStream = just( requestContext );
+  const uploadContainerStream = createUploadContainer();
   
-//   beforeAll( ( done )=>{
-
-//     getFullResponse( postToUploads, null, null, ( err, result )=>{
-
-//       if( err ){
-
-//         return err;
-
-//       }
-
-//       container_url = result.jsonBody._links.upload.href;
-//       status_code = result.statusCode;
-//       done();
-
-//     } );
-
-//   } );
-
-//   it( 'user should be able to upload to the correct URL', ( done )=>{
-
-//     const postToUploadContainerID = url.parse( container_url );
-
-//     // See: https://nodejs.org/api/http.html#http_class_http_clientrequest
-    
-//     // const uploadFile = JSON.stringify(fs.createReadStream( './test-data/AssetTypesImporter.xlsx' ));
-//     const uploadFile = just( '/home/quoc/async-await-sb/spec/test-data/AssetTypesImporter.xlsx', getFullResponse );
-//     const postData = querystring.stringify( uploadFile );
-    
-//     postToUploadContainerID.method = 'post';
-
-//     postToUploadContainerID.headers = {
-
-//     };
-
-//     getFullResponse( postToUploadContainerID, null, postData, ( err, res )=>{
-
-//       let stat_code = res.statusCode;
-//       let err_message = util.format( 'Incorrect status code (%s) when posting to: %s', stat_code, container_url );
-//       expect( stat_code >= 200 && stat_code < 300 ).toBe( true, err_message );
-//       done();
-
-//     } );
-
-//   } );
-
-  // /**
-  //  * Sends a request and returns an Object containing the Server's response
-  //  * 
-  //  * @param {object} requestParams Request params
-  //  * @param {function} next Callback
-  //  * @returns {void} parsed JSON body (if it exists)
-  //  * @param {any} payload The payload
-  //  * @param {any} file The binary to upload
-  //  */
-  // function getFullResponse( requestParams, payload, file, next ){
-
-  //   const req = http.request( requestParams, ( res )=>{
-
-  //       try{
-
-  //         res.pipe( parseBody() )
-  //         .on( 'data', ( body )=>{
-
-  //           next( null, {
-  //             statusCode: res.statusCode,
-  //             jsonBody:   body,
-  //           } );
-
-  //         } );
-          
-  //       }catch( err ){
-
-  //         next( err );
-
-  //       }
-
-  //     } );
-
-  //     // Payload
-  //     if( payload ){
-
-  //       req.write( payload );
-
-  //     }
-
-  //     // Binary
-  //     if( file ){
-
-  //       req.write( file.slice( 0, CHUNK_MAX_SIZE ) );
-
-  //     } 
-
-  //     req.end();
-  // }
-
-/**
- * 
- * -----------------------------------------------
- * || Code below to be put into separate module ||
- * -----------------------------------------------
- * 
- */
-
-/**
- * Returns a Transform that parses the JSON response
- * 
- * @returns{object} Returns a Transform that parses the JSON response
- */
-function parseBody(){
-
-  const accumulator = [];
-
-  function transform( chunk, encoding, next ){
-    
-    accumulator.push( chunk );
-
-    try{
-
-      process.nextTick( next );
-
-    }catch( err ){
-      
-      return next( err );
-
-    }
-
-  }
-
-  function flush( done ){
-
-    const bodyStr = Buffer.concat( accumulator ).toString();
-    let parsed;
-
-    try{
-
-      parsed = JSON.parse( bodyStr );
-
-    }catch( err ){
-
-      return done( err );
-
-    }
-
-    this.push( parsed );
-    process.nextTick( done );
-
-  }
-
-  return Transform( {
-    transform, flush, readableObjectMode: true
+  requestContextStream
+  .on( 'error', ( err )=>{} )
+  .pipe( uploadContainerStream )
+  .on( 'error', ( err )=>{} )
+  .on( 'data', ( data )=>{
+    Object.assign( updatedRequestContext, data );
+  } )
+  .on( 'finish', ()=>{
+    next( null, updatedRequestContext );
   } );
+
 }
+
+/**
+ * 
+ * @param {*} requestContext 
+ * @param {*} next 
+ */
+function uploadChunks( requestContext, chunkSize, next ){
+  
+  const fileChunkStream = generateChunks( requestContext.filePath, chunkSize );
+
+  let chunkIndex = 0;
+
+  just( requestContext )
+  .on( 'error', ( err )=>{
+    console.log( err );
+  } )
+  .pipe( fileChunkStream )
+  .on( 'error', ( err )=>{
+    console.log( err );
+  } )
+  .on( 'data', ( data )=>{
+    console.log( `Chunk #${++chunkIndex} created.` );
+  } )
+  .on( 'finish', ()=>{ 
+    next(); 
+  } )
+
+}
+
+// /**
+//  * 
+//  * ---------------------------------------------------------
+//  * || Example of parsing a JSON response from data chunks ||
+//  * ---------------------------------------------------------
+//  * 
+//  */
+
+// /**
+//  * Returns a Transform that parses the JSON response
+//  * 
+//  * @returns{object} Returns a Transform that parses the JSON response
+//  */
+// function parseBody(){
+
+//   const accumulator = [];
+
+//   function transform( chunk, encoding, next ){
+    
+//     accumulator.push( chunk );
+
+//     try{
+
+//       process.nextTick( next );
+
+//     }catch( err ){
+      
+//       return next( err );
+
+//     }
+
+//   }
+
+//   function flush( done ){
+
+//     const bodyStr = Buffer.concat( accumulator ).toString();
+//     let parsed;
+
+//     try{
+
+//       parsed = JSON.parse( bodyStr );
+
+//     }catch( err ){
+
+//       return done( err );
+
+//     }
+
+//     this.push( parsed );
+//     process.nextTick( done );
+
+//   }
+
+//   return Transform( {
+//     transform, flush, readableObjectMode: true
+//   } );
+// }
