@@ -60,7 +60,7 @@ describe( 'Post using existing library',  ()=>{
       console.log( err );
     } )
     .on( 'data', ( data )=>{
-      console.log( `Chunk index: ${data.index}` );
+      console.log( `Chunk index: ${JSON.stringify(data[0])}` );
     } )
     // .pipe( PassThrough() )
     // .on( 'error', ( err )=>{

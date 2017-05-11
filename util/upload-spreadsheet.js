@@ -8,43 +8,31 @@ const ONE_MEGABYTE = 1048576;
 
 const compose = require( 'async/compose' );
 
+const asyncify = require( 'asyncify' );
+
 function sliceSpreadsheet(){
 
   let bytesRead = 0;
   let chunkIndex = 0;
 
-  const chunkInfo = {
-    chunkIndex: 0,
-    bytesRead: 0,
-    start: 0,
-    end: ONE_MEGABYTE
-  };
-
   // This stream will receive a REQUEST CONTEXT object from its readable side.
   function transform( requestContext, _, next ){
 
-    const queryPayload = { 
-
-      query:    requestContext.options.query,
-      payload:  requestContext.options.payload
-
-    };
-
-    const chunkData = {
-
-      start: 0,
-      index: 0
-
-    };
-
     let numReads = 0;
 
-    compose(
-      fs.stat(),
-      fs.open( requestContext.filePath, 'r'  )
+    const composedFunction = compose(
+      // asyncify( generateChunks ),
+      fs.fstat,
+      fs.open.bind( null, requestContext.filePath, 'r' ) // Use bind... 
     )( ( err, stat )=>{
 
-      generateChunks( stat );
+      if( err ){
+
+        console.log( 'you messed up' );
+      
+      }
+
+      next( null, generateChunks( stat )  );
 
     } );
 
@@ -57,74 +45,64 @@ function sliceSpreadsheet(){
       for( let i = 0; i < numChunks; i++ ){
         
         const currentChunkData = {
-          index:  i,
-          start:  i * ONE_MEGABYTE,
-          end:    Math.min( stat.size, (i + 1) * ONE_MEGABYTE )
+
+          index:          i,
+          start:          i * ONE_MEGABYTE,
+          end:            Math.min( stat.size, (i + 1) * ONE_MEGABYTE ),
+          requestContext: requestContext
+
         };
 
         chunkData.push( currentChunkData );
+
       }
+
+      return chunkData;
 
     }
 
-    // everything async !!!!!!! Use compose for multiple call backs. Callbacks!!
+    // // This should return a transform stream taking chunk info as in and return POST response as out
+    // function processChunks( err, fd, next ){
 
-    fs.open( requestContext.filePath, 'r', ( err, fd )=>{
+    //   if( err ){
 
-      if( err ) next( err );
+    //     next( err );
 
-      fs.stat( fd, ( err, stats )=>{
-
-      } );
-
-     } )
-
-    // This should return a transform stream taking chunk infor as in and return POST response as out
-    function processChunks( err, fd, next ){
-
-      if( err ){
-
-        next( err );
-
-      }
+    //   }
       
-      // // must be called multiple times
-      // fs.read( fd, Buffer.alloc( ONE_MEGABYTE ), 0, ONE_MEGABYTE, chunkData.start, printChunkInfo );
 
-      processOneChunk( fd, ONE_MEGABYTE, chunkData.start );
+    // }
 
-    }
+    // function processOneChunk( fd, chunkSize, readStart, next ){
 
-    function processOneChunk( fd, chunkSize, readStart, next ){
+    //   fs.read( fd, Buffer.alloc( ONE_MEGABYTE ), 0, chunkSize, readStart, next );
 
-      fs.read( fd, Buffer.alloc( ONE_MEGABYTE ), 0, chunkSize, readStart, next );
+    // }
 
-    }
+  // /**
+  //  * Returns a transform stream that takes in chunk info as in and then uploads the corresponding chunk.
+  //  */
+  // function sendChunks(){
 
-  /**
-   * Returns a transform stream that takes in chunk info as in and then uploads the corresponding chunk.
-   */
-  function sendChunks(){
+  //     /**
+  //      * 
+  //      * @param {object} this is chunk meta-data 
+  //      * @param {*} _ 
+  //      * @param {function} next 
+  //      */
+  //     function transform( chunkInfo, _, next ){
 
-      /**
-       * 
-       * @param {object} this is chunk meta-data 
-       * @param {*} _ 
-       * @param {function} next 
-       */
-      function transform( chunkInfo, _, next ){
+  //       next(process.nextTick( chunk ) );
+  //       // do something useful;
+  //     }
 
-        next(process.nextTick( chunk ) );
-        // do something useful;
-      }
+  //     return require( 'stream' ).Transform( {
+  //       objectMode: true,
+  //       transform,
+  //       flush: require( 'tessa-common/lib/stream/util/just-flush' )
+  //     } );
 
-      return require( 'stream' ).Transform( {
-        objectMode: true,
-        transform,
-        flush: require( 'tessa-common/lib/stream/util/just-flush' )
-      } );
-
-    }
+  //   }
 
   }
 
