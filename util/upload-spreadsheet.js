@@ -37,13 +37,11 @@ function sliceSpreadsheet(){
 
     };
 
-    let eof = false;
-    
     let numReads = 0;
 
     compose(
-      fs.stat,
-      fs.open( requestContext.filePath, 'r',  )
+      fs.stat(),
+      fs.open( requestContext.filePath, 'r'  )
     )( ( err, stat )=>{
 
       generateChunks( stat );
@@ -103,40 +101,39 @@ function sliceSpreadsheet(){
 
     }
 
+  /**
+   * Returns a transform stream that takes in chunk info as in and then uploads the corresponding chunk.
+   */
+  function sendChunks(){
+
+      /**
+       * 
+       * @param {object} this is chunk meta-data 
+       * @param {*} _ 
+       * @param {function} next 
+       */
+      function transform( chunkInfo, _, next ){
+
+        next(process.nextTick( chunk ) );
+        // do something useful;
+      }
+
+      return require( 'stream' ).Transform( {
+        objectMode: true,
+        transform,
+        flush: require( 'tessa-common/lib/stream/util/just-flush' )
+      } );
+
+    }
+
+  }
+
   return require( 'stream' ).Transform( {
     objectMode: true,
     transform,
     flush: require( 'tessa-common/lib/stream/util/just-flush' )
   } );
 
-  /**
-   * Returns a transform stream that takes in chunk info as in and then uploads the corresponding chunk.
-   */
-  function sendChunks(){
-
-    /**
-     * 
-     * @param {object} this is chunk meta-data 
-     * @param {*} _ 
-     * @param {function} next 
-     */
-    function transform( chunkInfo, _, next ){
-
-      next(process.nextTick( chunk ) );
-      // do something useful;
-    }
-
-    return require( 'stream' ).Transform( {
-      objectMode: true,
-      transform,
-      flush: require( 'tessa-common/lib/stream/util/just-flush' )
-    } );
-
-  }
-
 }
-
-
-
 
 module.exports = sliceSpreadsheet;
