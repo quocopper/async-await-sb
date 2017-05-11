@@ -2,7 +2,9 @@ const http = require( 'http' );
 const url = require( 'url' );
 const uploads_url = 'http://quoc-virtualbox:3002/uploads?onUploaded=http%3A%2F%2Fquoc-virtualbox%3A3001%2Fimporters%2Ffacilities%2F%7Bcontainer%7D';
 const util = require( 'util' );
-const Transform = require( 'stream' ).Transform;
+const stream = require( 'stream' )
+const Transform = stream.Transform;
+const PassThrough = stream.PassThrough;
 const fs = require( 'fs' );
 const querystring = require( 'querystring' );
 const path = require( 'path' );
@@ -54,9 +56,19 @@ describe( 'Post using existing library',  ()=>{
     // Pipe the resulting container ID into a Stream that will upload to that container.
     // Also, chunk the XL file into smaller pieces of data.
     .pipe( uploadSpreadsheetStream )
-    .on( 'data', ( data )=>{
-      console.log( data.chunk.length );
+    .on( 'error', ( err )=>{
+      console.log( err );
     } )
+    .on( 'data', ( data )=>{
+      console.log( `Chunk index: ${data.index}` );
+    } )
+    // .pipe( PassThrough() )
+    // .on( 'error', ( err )=>{
+    //   console.log( err );
+    // } )
+    // .on( 'data', ( data )=>{
+    //   console.log( data.index );
+    // } )
     // Upon finish, confirm that the container ID is correct.
     .on( 'finish', ()=>{ 
       expect( containerURL ).toContain( '/upload?onUploaded=' );
@@ -213,21 +225,18 @@ function sliceFile( file ){
 function parseBody(){
 
   const accumulator = [];
-  const myTransform = Transform( {
-    transform, flush, readableObjectMode: true
-  } );
 
-  function transform( chunk, encoding, myCallback ){
+  function transform( chunk, encoding, next ){
     
     accumulator.push( chunk );
 
     try{
 
-      process.nextTick( myCallback );
+      process.nextTick( next );
 
     }catch( err ){
       
-      return myCallback( err );
+      return next( err );
 
     }
 
@@ -253,6 +262,7 @@ function parseBody(){
 
   }
 
-  return myTransform;
-
+  return Transform( {
+    transform, flush, readableObjectMode: true
+  } );
 }
