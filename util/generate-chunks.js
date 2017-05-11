@@ -8,7 +8,7 @@ const compose = require( 'async/compose' );
 
 const asyncify = require( 'asyncify' );
 
-const fromArray = require( 'tessa-common/lib/stream/from-array' )
+const fromArray = require( 'tessa-common/lib/stream/from-array' );
 
 const apply = require( 'tessa-common/lib/stream/apply' );
 
