@@ -51,7 +51,7 @@ function generateChunks( filePath, chunkSize ){
 
           index:          i,
           start:          i * chunkSize,
-          end:            Math.min( stat.size, (i + 1) * chunkSize ),
+          length:         Math.min( stat.size - ( i * chunkSize ), chunkSize ),
           requestContext: requestContext
 
         };

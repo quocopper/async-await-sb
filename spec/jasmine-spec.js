@@ -13,12 +13,11 @@ const just = require( 'tessa-common/lib/stream/just' );
 const flatten = require( 'tessa-common/lib/stream/flatten' );
 const createUploadContainer = require( '../util/create-upload-container' );
 const generateChunks = require( '../util/generate-chunks' );
+const sendChunk = require( '../util/send-chunk' );
 const filePath = 'spec/test-data/FacilitiesImporter.xlsx';
 
 let container_url;
 let status_code;
-
-// Re-use post & return JSON.
 
 describe( 'Post using existing library',  ()=>{
 
@@ -41,31 +40,8 @@ describe( 'Post using existing library',  ()=>{
 
     fetchUploadLinks( requestContext, ( err, res )=>{
       console.log( 'Fetched upload links.' );
-      // process.nextTick( uploadChunks.bind( null, res, MAX_CHUNK_SIZE, done ) );
       process.nextTick( uploadChunks.bind( null, res, MAX_CHUNK_SIZE, done ) );
     } );
-    
-    // // Pipe the resulting container ID into a Stream that will upload to that container.
-    // // Also, chunk the XL file into smaller pieces of data.
-    // test.pipe( spreadsheedChunksStream )
-    // .on( 'error', ( err )=>{
-    //   console.log( err );
-    // } )
-    // .on( 'data', ( data )=>{
-    //   // console.log( `Chunk index: ${JSON.stringify(data[0])}` );
-    // } )
-    // .pipe( flatten() )
-    // .on( 'error', ( err )=>{
-    //   console.log( err );
-    // } )
-    // .on( 'data', ( data )=>{
-    //   console.log( 'data emitted' );
-    // } )
-    // // Upon finish, confirm that the container ID is correct.
-    // .on( 'finish', ()=>{ 
-    //   expect( uploadURL ).toContain( '/upload?onUploaded=' );
-    //   done(); 
-    // } );
 
   } );
 
@@ -106,6 +82,7 @@ function fetchUploadLinks( requestContext, next ){
 function uploadChunks( requestContext, chunkSize, next ){
   
   const fileChunkStream = generateChunks( requestContext.filePath, chunkSize );
+  const sendChunkStream = sendChunk( MAX_CHUNK_SIZE );
 
   let chunkIndex = 0;
 
@@ -118,68 +95,14 @@ function uploadChunks( requestContext, chunkSize, next ){
     console.log( err );
   } )
   .on( 'data', ( data )=>{
-    console.log( `Chunk #${++chunkIndex} created.` );
+    console.log( `Chunk #${++chunkIndex} created (Size: ${data.length}).` );
+  } )
+  .pipe( sendChunkStream )
+  .on( 'error', ( err )=>{
+    console.log( err );
   } )
   .on( 'finish', ()=>{ 
     next(); 
   } )
 
 }
-
-// /**
-//  * 
-//  * ---------------------------------------------------------
-//  * || Example of parsing a JSON response from data chunks ||
-//  * ---------------------------------------------------------
-//  * 
-//  */
-
-// /**
-//  * Returns a Transform that parses the JSON response
-//  * 
-//  * @returns{object} Returns a Transform that parses the JSON response
-//  */
-// function parseBody(){
-
-//   const accumulator = [];
-
-//   function transform( chunk, encoding, next ){
-    
-//     accumulator.push( chunk );
-
-//     try{
-
-//       process.nextTick( next );
-
-//     }catch( err ){
-      
-//       return next( err );
-
-//     }
-
-//   }
-
-//   function flush( done ){
-
-//     const bodyStr = Buffer.concat( accumulator ).toString();
-//     let parsed;
-
-//     try{
-
-//       parsed = JSON.parse( bodyStr );
-
-//     }catch( err ){
-
-//       return done( err );
-
-//     }
-
-//     this.push( parsed );
-//     process.nextTick( done );
-
-//   }
-
-//   return Transform( {
-//     transform, flush, readableObjectMode: true
-//   } );
-// }
