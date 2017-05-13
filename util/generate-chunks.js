@@ -1,7 +1,5 @@
 'use strict';
 
-const post = require( './external-request/post' );
-
 const fs = require( 'fs' );
 
 const compose = require( 'async/compose' );
@@ -43,24 +41,23 @@ function generateChunks( filePath, chunkSize ){
 
       const numChunks = Math.ceil( stat.size / chunkSize );
 
-      const chunkData = [];
+      const chunkDataArray = [];
 
       for( let i = 0; i < numChunks; i++ ){
         
-        const currentChunkData = {
+        const chunkMetaData = {
 
           index:          i,
           start:          i * chunkSize,
           length:         Math.min( stat.size - ( i * chunkSize ), chunkSize ),
-          requestContext: requestContext
 
         };
 
-        chunkData.push( currentChunkData );
+        chunkDataArray.push( { requestContext, chunkMetaData } );
 
       }
 
-      return chunkData;
+      return chunkDataArray;
 
     }
 

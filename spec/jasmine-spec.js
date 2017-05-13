@@ -95,7 +95,7 @@ function uploadChunks( requestContext, chunkSize, next ){
     console.log( err );
   } )
   .on( 'data', ( data )=>{
-    console.log( `Chunk #${++chunkIndex} created (Size: ${data.length}).` );
+    console.log( `Chunk #${ ++chunkIndex } created (Size: ${ data.chunkMetaData.length }).` );
   } )
   .pipe( sendChunkStream )
   .on( 'error', ( err )=>{
