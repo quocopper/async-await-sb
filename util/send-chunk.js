@@ -102,8 +102,11 @@ function sendChunks( chunkSize ){
         
         } )
         .on( 'end', ()=>{
+
           next( null, `Status Code: ${ res.statusCode }` ) ;
+        
         } );
+        
       } );
 
       form.pipe( req );
