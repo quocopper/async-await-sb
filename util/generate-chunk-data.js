@@ -10,9 +10,14 @@ const fromArray = require( 'tessa-common/lib/stream/from-array' );
 
 const apply = require( 'tessa-common/lib/stream/apply' );
 
-function generateChunks( filePath, chunkSize ){
+/**
+ * Creates an array of chunk meta data for a given file using the specified chunk size.
+ * 
+ * @param {*} filePath the location of the file to 'chunked'
+ * @param {*} chunkSize the size of each data chunk
+ */
+function generateChunkData( filePath, chunkSize ){
 
-  // This stream will receive a REQUEST CONTEXT object from its readable side.
   function transform( requestContext, _, next ){
 
     const composedFunction = compose(
@@ -26,7 +31,9 @@ function generateChunks( filePath, chunkSize ){
       
       }
 
-      fromArray( generateChunkArray( stat ) )
+      requestContext.fileSize = stat.size;
+
+      fromArray( generateChunkDataArray( stat ) )
       .pipe( apply( ( item, next )=>{
 
         this.push( item );
@@ -37,19 +44,21 @@ function generateChunks( filePath, chunkSize ){
       .resume(); // without data listener must call resume...
     } )
 
-    function generateChunkArray( stat ){
+    function generateChunkDataArray( stat ){
 
       const numChunks = Math.ceil( stat.size / chunkSize );
 
       const chunkDataArray = [];
 
+      requestContext.numChunks = numChunks;
+
       for( let i = 0; i < numChunks; i++ ){
         
         const chunkMetaData = {
 
-          index:          i,
-          start:          i * chunkSize,
-          length:         Math.min( stat.size - ( i * chunkSize ), chunkSize ),
+          index:  i,
+          start:  i * chunkSize,
+          length: Math.min( stat.size - ( i * chunkSize ), chunkSize ),
 
         };
 
@@ -61,7 +70,7 @@ function generateChunks( filePath, chunkSize ){
 
     }
 
-  }
+  }  
 
   return require( 'stream' ).Transform( {
     objectMode: true,
@@ -71,4 +80,4 @@ function generateChunks( filePath, chunkSize ){
 
 }
 
-module.exports = generateChunks;
+module.exports = generateChunkData;

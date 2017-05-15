@@ -18,9 +18,11 @@ const FormData = require('form-data');
 
 const http = require('http');
 
+const path = require( 'path' );
+
 const sendRequest = require( './external-request/send-request' );
 
-function sendChunks( chunkSize ){
+function sendChunks( requestContext, chunkSize ){
 
   /**
    * 
@@ -44,7 +46,6 @@ function sendChunks( chunkSize ){
       
       }
 
-      console.log( `Read chunk #${ chunkMetaData.index + 1 } (${bytesRead} bytes).` );
       sendChunk( buffer, next );
 
     } )
@@ -76,11 +77,9 @@ function sendChunks( chunkSize ){
       uploadOptions.method = 'post';
 
       const form = new FormData();
-      // const formOptions = { knownLength: buffer.length };
       form.append( 'chunk', dataChunk, chunkMetaData.index.toString() );
 
       const headers = form.getHeaders();
-      // Object.assign( headers, { 'content-length': 1048775 /*form.getLength()*/ } );
 
       uploadOptions.headers = headers;
     
@@ -103,7 +102,7 @@ function sendChunks( chunkSize ){
         } )
         .on( 'end', ()=>{
 
-          next( null, `Status Code: ${ res.statusCode }` ) ;
+          next( null, `Chunk #${ chunkMetaData.index } Status Code: ${ res.statusCode }` ) ;
         
         } );
         
@@ -114,6 +113,51 @@ function sendChunks( chunkSize ){
     }
 
   }
+
+  // /**
+  //  * Finalizes the file upload after all chunks have been sent.
+  //  * 
+  //  * @param { function } done callback
+  //  */
+  // function flush( done ) {
+
+  //   const chunkList = Array.from( { length: requestContext.numChunks }, ( v, i ) => i.toString() );
+      
+  //   const finalizePayload = {
+
+  //     chunkList:  chunkList,
+  //     fileName:   path.basename( requestContext.filePath ),
+  //     fileSize:   requestContext.fileSize,
+  //     importer:   requestContext.importer
+
+  //   };
+
+  //   finalizeUpload( finalizePayload, done );
+
+  //   function finalizeUpload( payload, next ){
+
+  //     const finalizeOptions = url.parse( requestContext.links.finalize.href );
+      
+  //     post( 
+  //       { 
+          
+  //         query:    finalizeOptions.query, 
+  //         payload:  payload
+
+  //       }, 
+  //       finalizeOptions, 
+  //       null,
+  //       ( err, res )=>{
+
+  //         console.log( res );
+  //         this.push( res );
+  //         next( null, res );
+
+  //       }
+  //     );
+  //   }
+
+  // }
 
   return require( 'stream' ).Transform( {
     objectMode: true,
