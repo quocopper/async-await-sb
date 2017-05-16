@@ -172,6 +172,7 @@ function sendChunks( requestContext, chunkSize ){
         ( err, res )=>{
 
           process.nextTick( console.log( res ) );
+          process.nextTick( console.log( `Error is null (?): ${err}` ) );
           next( null, res );
 
         }
