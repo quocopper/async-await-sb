@@ -7,6 +7,7 @@ const util = require( 'util' );
 const stream = require( 'stream' );
 const Transform = stream.Transform;
 const PassThrough = stream.PassThrough;
+const apply = require( 'tessa-common/lib/stream/apply' );
 
 const just = require( 'tessa-common/lib/stream/just' );
 const flatten = require( 'tessa-common/lib/stream/flatten' );
@@ -113,6 +114,15 @@ function uploadChunks( requestContext, chunkSize, next ){
   } )
   .on( 'data', ( data )=>{
     console.log( data );
+  } )
+
+  // debugging stream.
+  .pipe( new PassThrough() )
+  .on( 'error', ( err )=>{
+    console.log( err );
+  } )
+  .on( 'data', ( data )=>{
+    console.log( data.toString() );
   } )
   .on( 'finish', ()=>{ 
     next(); 

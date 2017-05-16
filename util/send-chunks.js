@@ -121,18 +121,28 @@ function sendChunks( requestContext, chunkSize ){
   //  */
   // function flush( done ) {
 
-  //   const chunkList = Array.from( { length: requestContext.numChunks }, ( v, i ) => i.toString() );
+  //   generateFinalizePayload( ( payload )=>{
       
-  //   const finalizePayload = {
+  //     finalizeUpload( payload, done );
+    
+  //   } );
 
-  //     chunkList:  chunkList,
-  //     fileName:   path.basename( requestContext.filePath ),
-  //     fileSize:   requestContext.fileSize,
-  //     importer:   requestContext.importer
 
-  //   };
+  //   function generateFinalizePayload( next ){
 
-  //   finalizeUpload( finalizePayload, done );
+  //     const chunkList = Array.from( { length: requestContext.numChunks }, ( v, i ) => i.toString() );
+      
+  //     const finalizePayload = {
+
+  //       chunkList:  chunkList,
+  //       fileName:   path.basename( requestContext.filePath ),
+  //       fileSize:   requestContext.fileSize,
+  //       importer:   requestContext.importer
+
+  //     };
+
+  //     next( finalizePayload );
+  //   }
 
   //   function finalizeUpload( payload, next ){
 
@@ -150,7 +160,6 @@ function sendChunks( requestContext, chunkSize ){
   //       ( err, res )=>{
 
   //         console.log( res );
-  //         this.push( res );
   //         next( null, res );
 
   //       }
