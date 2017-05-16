@@ -24,6 +24,8 @@ const sendRequest = require( './external-request/send-request' );
 
 function sendChunks( requestContext, chunkSize ){
 
+  const numchunks = requestContext.numChunks;
+
   /**
    * 
    * @param {object} chunkMetaData is the information regarding the chunked data to send, 
@@ -124,59 +126,22 @@ function sendChunks( requestContext, chunkSize ){
   }
 
   /**
-   * Finalizes the file upload after all chunks have been sent.
+   * Creates an ordered array of chunk filenames. The filename of each chunk 
+   * will be the same as its index when reconstructing the full file.
    * 
-   * @param { function } done callback
+   * @param {function} done 
    */
-  function flush( done ) {
+  function flush( done ){
 
-    this.push( `Iam flushing` );
-    process.nextTick( done );
-
-    generateFinalizePayload( ( payload )=>{
-      
-      finalizeUpload( payload, done );
-    
-    } );
-
-
-    function generateFinalizePayload( next ){
+    try {
 
       const chunkList = Array.from( { length: requestContext.numChunks }, ( v, i ) => i.toString() );
+      process.nextTick( done.bind( null, null, chunkList ) );
       
-      const finalizePayload = {
+    } catch ( error ) {
+      
+      process.nextTick( done.bind( null, error, null ) );
 
-        chunkList:  chunkList,
-        fileName:   path.basename( requestContext.filePath ),
-        fileSize:   requestContext.fileSize,
-        importer:   requestContext.importer
-
-      };
-
-      next( finalizePayload );
-    }
-
-    function finalizeUpload( payload, next ){
-
-      const finalizeOptions = url.parse( requestContext.links.finalize.href );
-      console.log(`Chunklist: ${payload.chunkList.toString()}`);
-      post( 
-        { 
-          
-          query:    finalizeOptions.query, 
-          payload:  payload
-
-        }, 
-        finalizeOptions, 
-        null,
-        ( err, res )=>{
-
-          process.nextTick( console.log( res ) );
-          process.nextTick( console.log( `Error is null (?): ${err}` ) );
-          next( null, res );
-
-        }
-      );
     }
 
   }

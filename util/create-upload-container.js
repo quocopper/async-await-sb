@@ -8,7 +8,6 @@ const post = require( './external-request/post' );
  */
 function createUploadContainer(){
 
-  // This stream will receive a REQUEST CONTEXT object from its readable side.
   function transform( requestContext, _, next ){
 
     const queryPayload = { 

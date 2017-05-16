@@ -11,7 +11,8 @@ const fromArray = require( 'tessa-common/lib/stream/from-array' );
 const apply = require( 'tessa-common/lib/stream/apply' );
 
 /**
- * Creates an array of chunk meta data for a given file using the specified chunk size.
+ * Creates an array of chunk meta data for a given file using 
+ * the specified chunk size.
  * 
  * @param {*} filePath the location of the file to 'chunked'
  * @param {*} chunkSize the size of each data chunk

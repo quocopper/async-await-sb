@@ -14,6 +14,7 @@ const flatten = require( 'tessa-common/lib/stream/flatten' );
 const createUploadContainer = require( '../util/create-upload-container' );
 const generateChunks = require( '../util/generate-chunk-data' );
 const sendChunks = require( '../util/send-chunks' );
+const finalizeUpload = require( '../util/finalize-upload' );
 
 const uploadsURL = 'http://quoc-virtualbox:3002/uploads?%s';
 const importersURL = 'http://quoc-virtualbox:3001/importers';
@@ -114,19 +115,20 @@ function uploadChunks( requestContext, chunkSize, next ){
     console.log( err );
   } )
   .on( 'data', ( data )=>{
-    // console.log( data );
+    console.log( `Data handler for 'sendChunks' ${data}` );
   } )
 
   // debugging stream.
-  .pipe( new PassThrough() )
+  .pipe( finalizeUpload( requestContext ) )
   .on( 'error', ( err )=>{
     console.log( err );
   } )
   .on( 'data', ( data )=>{
-    console.log( data.toString() );
+    console.log( `Finalize stream data ${ data.toString() }` );
   } )
-  .on( 'finish', ( err, data, cb )=>{ 
-    next(); 
-  } )
+  .on( 'end', ()=>{ 
+    console.log( `End event` );
+    next();
+  } );
 
 }
