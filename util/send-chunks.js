@@ -102,7 +102,16 @@ function sendChunks( requestContext, chunkSize ){
         } )
         .on( 'end', ()=>{
 
-          next( null, `Chunk #${ chunkMetaData.index } Status Code: ${ res.statusCode }` ) ;
+          if( res.statusCode === 200 ){
+            next();
+          }
+          else{
+            next( {
+              statusCode: res.statusCode,
+              error: `Unable to upload chunk #${chunkMetaData.index + 1}.`
+            } ); 
+          }
+          
         
         } );
         
@@ -114,64 +123,67 @@ function sendChunks( requestContext, chunkSize ){
 
   }
 
-  // /**
-  //  * Finalizes the file upload after all chunks have been sent.
-  //  * 
-  //  * @param { function } done callback
-  //  */
-  // function flush( done ) {
+  /**
+   * Finalizes the file upload after all chunks have been sent.
+   * 
+   * @param { function } done callback
+   */
+  function flush( done ) {
 
-  //   generateFinalizePayload( ( payload )=>{
+    this.push( `Iam flushing` );
+    process.nextTick( done );
+
+    generateFinalizePayload( ( payload )=>{
       
-  //     finalizeUpload( payload, done );
+      finalizeUpload( payload, done );
     
-  //   } );
+    } );
 
 
-  //   function generateFinalizePayload( next ){
+    function generateFinalizePayload( next ){
 
-  //     const chunkList = Array.from( { length: requestContext.numChunks }, ( v, i ) => i.toString() );
+      const chunkList = Array.from( { length: requestContext.numChunks }, ( v, i ) => i.toString() );
       
-  //     const finalizePayload = {
+      const finalizePayload = {
 
-  //       chunkList:  chunkList,
-  //       fileName:   path.basename( requestContext.filePath ),
-  //       fileSize:   requestContext.fileSize,
-  //       importer:   requestContext.importer
+        chunkList:  chunkList,
+        fileName:   path.basename( requestContext.filePath ),
+        fileSize:   requestContext.fileSize,
+        importer:   requestContext.importer
 
-  //     };
+      };
 
-  //     next( finalizePayload );
-  //   }
+      next( finalizePayload );
+    }
 
-  //   function finalizeUpload( payload, next ){
+    function finalizeUpload( payload, next ){
 
-  //     const finalizeOptions = url.parse( requestContext.links.finalize.href );
-      
-  //     post( 
-  //       { 
+      const finalizeOptions = url.parse( requestContext.links.finalize.href );
+      console.log(`Chunklist: ${payload.chunkList.toString()}`);
+      post( 
+        { 
           
-  //         query:    finalizeOptions.query, 
-  //         payload:  payload
+          query:    finalizeOptions.query, 
+          payload:  payload
 
-  //       }, 
-  //       finalizeOptions, 
-  //       null,
-  //       ( err, res )=>{
+        }, 
+        finalizeOptions, 
+        null,
+        ( err, res )=>{
 
-  //         console.log( res );
-  //         next( null, res );
+          process.nextTick( console.log( res ) );
+          next( null, res );
 
-  //       }
-  //     );
-  //   }
+        }
+      );
+    }
 
-  // }
+  }
 
   return require( 'stream' ).Transform( {
     objectMode: true,
     transform,
-    flush: require( 'tessa-common/lib/stream/util/just-flush' )
+    flush
   } );
 
 }

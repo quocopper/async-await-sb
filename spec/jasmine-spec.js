@@ -50,6 +50,7 @@ describe( 'Post using existing library',  ()=>{
         importer: importerType
     };
 
+    // TODO: Use async compose...
     fetchUploadLinks( requestContext, ( err, res )=>{
       console.log( 'Fetched upload links.' );
       process.nextTick( uploadChunks.bind( null, res, MAX_CHUNK_SIZE, done ) );
@@ -113,7 +114,7 @@ function uploadChunks( requestContext, chunkSize, next ){
     console.log( err );
   } )
   .on( 'data', ( data )=>{
-    console.log( data );
+    // console.log( data );
   } )
 
   // debugging stream.
@@ -124,7 +125,7 @@ function uploadChunks( requestContext, chunkSize, next ){
   .on( 'data', ( data )=>{
     console.log( data.toString() );
   } )
-  .on( 'finish', ()=>{ 
+  .on( 'finish', ( err, data, cb )=>{ 
     next(); 
   } )
 
