@@ -18,13 +18,13 @@ const finalizeUpload = require( '../util/finalize-upload' );
 
 const uploadsURL = 'http://quoc-virtualbox:3002/uploads?%s';
 const importersURL = 'http://quoc-virtualbox:3001/importers';
-const importerType = 'facilities';
+const importerType = 'asset-types';
 const uploadContainerURL = `${importersURL}/${importerType}/{container}`;
 const queryObject = { onUploaded: uploadContainerURL };
 
 const MAX_CHUNK_SIZE = 1048576;
 
-const filePath = 'spec/test-data/FacilitiesImporter.xlsx';
+const filePath = 'spec/test-data/AssetTypesImporter.xlsx';
 
 let container_url;
 let status_code;

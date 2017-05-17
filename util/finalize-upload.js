@@ -49,8 +49,6 @@ function finalizeUpload( requestContext ){
     const finalizeOptions = url.parse( requestContext.links.finalize.href );
 
     const stringPayload = JSON.stringify( finalizePayload );
-    const bufferPayload = Buffer.from( stringPayload );
-
 
     finalizeOptions.method = 'post';
     finalizeOptions.headers = {
@@ -70,63 +68,10 @@ function finalizeUpload( requestContext ){
     
   }
 
-  // /**
-  //  * Finalizes the file upload after all chunks have been sent.
-  //  * 
-  //  * @param { function } done callback
-  //  */
-  // function flush( done ) {
-
-  //   const finalizeOptions = url.parse( requestContext.links.finalize.href );
-
-  //   const stringPayload = JSON.stringify( finalizePayload );
-  //   const bufferPayload = Buffer.from( stringPayload );
-
-  //   finalizeOptions.method = 'post';
-  //   finalizeOptions.headers = {
-  //     'Content-Type': 'application/json',
-  //     'Content-Length': Buffer.byteLength( bufferPayload )
-  //   }
-
-  //   const req = http.request( finalizeOptions, ( res )=>{
-
-  //     res
-  //       .on( 'data', ( data )=>{
-  //       } )
-  //       .on( 'error', ( err )=>{
-        
-  //          done( err );
-        
-  //       } )
-  //       .on( 'end', ()=>{
-
-  //         if( res.statusCode === 200 ){
-  //           console.log( `Chunk upload success!!!` );
-  //           done();
-  //         }
-  //         else{
-  //           done( {
-  //             statusCode: res.statusCode,
-  //             error: `Unable to finalize upload.`
-  //           } ); 
-  //         }
-          
-        
-  //       } );
-
-  //   } )
-  //   .on('error', (e) => {
-  //     console.error(`problem with request: ${e.message}`);
-  //   })
-  //   .end( bufferPayload );
-    
-  // }
-
   return require( 'stream' ).Transform( {
     objectMode: true,
     transform,
     flush
-    // flush: require( 'tessa-common/lib/stream/util/just-flush' )
   } );
 
 }

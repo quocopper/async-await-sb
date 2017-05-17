@@ -14,9 +14,9 @@ var first_asset;
  */
 function getResponseAfterInterval( request_url, t ) {
 	return new Promise( ( resolve ) => {
-    request.get( request_url, ( error, response, body )=>{
-      resolve( body );
-    } );
+		request.get( request_url, ( error, response, body )=>{
+		resolve( body );
+		} );
 	} );
 }
 
