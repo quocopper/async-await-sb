@@ -18,13 +18,13 @@ const finalizeUpload = require( '../util/finalize-upload' );
 
 const uploadsURL = 'http://quoc-virtualbox:3002/uploads?%s';
 const importersURL = 'http://quoc-virtualbox:3001/importers';
-const importerType = 'asset-types';
+const importerType = 'facilities';
 const uploadContainerURL = `${importersURL}/${importerType}/{container}`;
 const queryObject = { onUploaded: uploadContainerURL };
 
 const MAX_CHUNK_SIZE = 1048576;
 
-const filePath = 'spec/test-data/AssetTypesImporter.xlsx';
+const filePath = 'spec/test-data/FacilitiesImporter.xlsx';
 
 let container_url;
 let status_code;
@@ -119,10 +119,10 @@ function uploadChunks( requestContext, chunkSize, next ){
     console.log( err );
   } )
   .on( 'data', ( data )=>{
-    console.log( `Finalize stream data ${ data._links.next.href }` );
+    // console.log( `Finalize stream data: ${ data._links.next.href }` );
+    console.log( `Finalize stream data: ${JSON.stringify( data ) }` );
   } )
   .on( 'end', ()=>{ 
-    console.log( `End event` );
     next();
   } );
 
