@@ -114,17 +114,12 @@ function uploadChunks( requestContext, chunkSize, next ){
   .on( 'error', ( err )=>{
     console.log( err );
   } )
-  .on( 'data', ( data )=>{
-    console.log( `Data handler for 'sendChunks' ${data}` );
-  } )
-
-  // debugging stream.
   .pipe( finalizeUpload( requestContext ) )
   .on( 'error', ( err )=>{
     console.log( err );
   } )
   .on( 'data', ( data )=>{
-    console.log( `Finalize stream data ${ data.toString() }` );
+    console.log( `Finalize stream data ${ data._links.next.href }` );
   } )
   .on( 'end', ()=>{ 
     console.log( `End event` );

@@ -56,13 +56,9 @@ function finalizeUpload( requestContext ){
       'Content-Length': stringPayload.length
     }
 
-    console.log( stringPayload );
-
     sendRequest( finalizeOptions, stringPayload, ( err, res )=>{
 
-      console.log( `Finalize Flush Error : ${ err }` );
-      console.log( `Finalize Flush Result: ${ JSON.stringify( res ) }` );
-      process.nextTick( done );
+      process.nextTick( done.bind( null, null, res ) );
 
     } );
     
