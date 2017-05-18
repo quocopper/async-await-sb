@@ -1,6 +1,6 @@
 'use strict';
 
-const post = require( './external-request/post' );
+const sendRequest = require( './external-request/send-request' );
 
 /**
  * Takes in a request context  as input and returns the original request context along with 
@@ -8,17 +8,19 @@ const post = require( './external-request/post' );
  */
 function createUploadContainer(){
 
-  function transform( requestContext, _, next ){
+  function transform( requestOptions, _, next ){
 
-    const queryPayload = { 
-      query:    requestContext.options.query,
-      payload:  requestContext.options.payload
-    };
+    sendRequest( requestOptions, null, ( err, response )=>{
 
-    post( queryPayload, requestContext.options, requestContext.options.headers, ( err, response )=>{
+      if( err ){
 
-      requestContext.links = response._links;
-      next( null, requestContext );
+        process.nextTick( next.bind( null, err ) );
+
+      }else{
+
+        next( null, response );
+
+      }
 
     } );
       

@@ -17,7 +17,8 @@
     "jasmine": "^2.5.3",
     "multipipe": "^1.0.2",
     "request": "^2.81.0",
-    "tessa-common": "git+ssh://git@github.com:copperleaftech/tessa-common.git#v1.0.1"
+    "tessa-common": "git+ssh://git@github.com:copperleaftech/tessa-common.git#v1.0.1",
+    "tessa-importers": "git@github.com:copperleaftech/tessa-importers.git"
   },
   "devDependencies": {
     "cl-node-dev-tools": "git+ssh://git@github.com:copperleaftech/cl-node-dev-tools.git",

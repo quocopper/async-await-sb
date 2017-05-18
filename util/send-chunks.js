@@ -35,7 +35,7 @@ function sendChunks( requestContext, chunkSize ){
    */
   function transform( { requestContext, chunkMetaData }, _, next ){
 
-    const composedFunction = compose(
+    compose(
 
       readChunk,
       fs.open.bind( null, requestContext.filePath, 'r' )
@@ -50,7 +50,7 @@ function sendChunks( requestContext, chunkSize ){
 
       sendChunk( buffer, next );
 
-    } )
+    } );
 
     function readChunk( fd, next ){
 
