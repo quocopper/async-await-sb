@@ -24,7 +24,7 @@ const columnMaps = {
             defaultRepeatFrequency:         3,
             accountNameUsedForRepeatSpend:  4,
             rollupChildAccoutsForTransfer:  5,
-            accountNamePerCostModel:        6, 
+            accountNamePerCostModel:        6,
             operation:                      7
         }
     },
