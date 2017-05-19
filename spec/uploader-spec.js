@@ -112,7 +112,7 @@ describe( 'Cancel existing upload containers',  ()=>{
 
 } );
 
-describe( 'Upload a full spreasheet',  ()=>{
+describe( 'Upload a full spreadsheet',  ()=>{
 
   it( 'Should be able to chain together POST requests', ( done )=>{
 
