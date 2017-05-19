@@ -49,11 +49,12 @@ describe( 'Create upload containers',  ()=>{
 
       const links = res._links;
       const container = res.container;
+      container_url = links.upload.href;
 
       expect( container.length > 0 ).toBe( true, `Invalid container ID: ${ container }` );
-      expect( links.upload.href ).toContain( `/${container}`, `The upload URL did not contain the container ID.` );
-      expect( links.cancel.href ).toContain( `/${container}`, `The cancel URL did not contain the container ID.` );
-      expect( links.finalize.href ).toContain( `/${container}`, `The upload URL did not contain the container ID.` );
+      expect( links.upload.href ).toContain( `/${ container }`, `The upload URL did not contain the container ID.` );
+      expect( links.cancel.href ).toContain( `/${ container }`, `The cancel URL did not contain the container ID.` );
+      expect( links.finalize.href ).toContain( `/${ container }`, `The upload URL did not contain the container ID.` );
       
     } )
     .on( 'error', ( err )=>{
@@ -112,9 +113,48 @@ describe( 'Cancel existing upload containers',  ()=>{
 
 } );
 
-describe( 'Upload a full spreadsheet',  ()=>{
+describe( 'Send file chunks and finalize the complete upload',  ()=>{
 
-  it( 'Should be able to chain together POST requests', ( done )=>{
+  it( 'Should be able to POST mulitple chunks to the server.', ( done )=>{
+
+    const fullURL = util.format( uploadsURL, querystring.stringify( queryObject ) );
+
+    const requestContext = { 
+        payload:  null,
+        filePath: filePath,
+        worksheetID: worksheetID,
+        options:  url.parse( fullURL ),
+        importer: importerType
+    };
+
+    compose(
+
+      sendColumnMapping,
+      uploadChunks,
+      fetchUploadLinks.bind( null, requestContext )
+    
+    )( ( err, res )=>{
+
+      if( err ){
+
+        done( err );
+      
+      } else {
+
+        expect( res ).toBe( 'Accepted', `Unexpected response` );
+        done();
+
+      }
+
+    } );
+
+ } );
+
+} )
+
+describe( 'Send file chunks and finalize the complete upload',  ()=>{
+
+  it( 'Should be able to POST mulitple chunks to the server.', ( done )=>{
 
     const fullURL = util.format( uploadsURL, querystring.stringify( queryObject ) );
 
