@@ -10,6 +10,8 @@ function createUploadContainer(){
 
   function transform( requestOptions, _, next ){
 
+    requestOptions.method = 'post';
+
     sendRequest( requestOptions, null, ( err, response )=>{
 
       if( err ){
@@ -18,7 +20,7 @@ function createUploadContainer(){
 
       }else{
 
-        next( null, response );
+        process.nextTick( next.bind( null, null, response ) );
 
       }
 

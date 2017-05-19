@@ -17,9 +17,11 @@ const apply = require( 'tessa-common/lib/stream/apply' );
  * @param {*} filePath the location of the file to 'chunked'
  * @param {*} chunkSize the size of each data chunk
  */
-function generateChunkData( filePath, chunkSize ){
+function generateChunkData( chunkSize ){
 
   function transform( requestContext, _, next ){
+
+    const i = 0;
 
     const composedFunction = compose(
       fs.fstat,
@@ -28,7 +30,7 @@ function generateChunkData( filePath, chunkSize ){
 
       if( err ){
 
-        console.log( 'you messed up' );
+        process.nextTick( next.bind( null, err ) );
       
       }
 

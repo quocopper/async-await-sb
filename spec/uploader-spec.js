@@ -17,18 +17,20 @@ const generateChunks = require( '../util/generate-chunk-data' );
 const sendChunks = require( '../util/send-chunks' );
 const finalizeUpload = require( '../util/finalize-upload' );
 const getWorksheetsData = require( '../util/get-worksheets-data' );
+const uploadColumnMap = require( '../util/upload-column-map' );
 
 const uploadsURL = 'http://quoc-virtualbox:3002/uploads?%s';
 const importersURL = 'http://quoc-virtualbox:3001/importers';
-const importerType = 'facilities';
-const uploadContainerURL = `${importersURL}/${importerType}/{container}`;
+const importerType = 'asset-types';
+const spreadsheetColumnMaps = require( './test-data/spreadsheet-column-maps' );
+const uploadContainerURL = `${ importersURL }/${ importerType }/{container}`;
 const queryObject = { onUploaded: uploadContainerURL };
 const compose = require( 'async/compose' );
 
 const MAX_CHUNK_SIZE = 1048576;
 
-const filePath = 'spec/test-data/6 - Facilities Importer.xlsx';
-const worksheetIDs = [ '1' ];
+const filePath = 'spec/test-data/1 - Asset Types Importer.xlsx';
+const worksheetID = '1';
 
 let container_url;
 let status_code;
@@ -93,7 +95,7 @@ describe( 'Cancel existing upload containers',  ()=>{
   
   } );
 
-  it( 'Should be able to DELETE /uploads/{container id}', ( done )=>{
+  it( 'Should be able to DELETE /uploads/{container id} (container without any chunks uploaded)', ( done )=>{
 
     const requestOptions = url.parse( containerURL );
 
@@ -110,17 +112,44 @@ describe( 'Cancel existing upload containers',  ()=>{
 
 } );
 
-describe( 'Upload a file in chunks', ()=>{
+describe( 'Upload a full spreasheet',  ()=>{
 
-  
+  it( 'Should be able to chain together POST requests', ( done )=>{
 
-} );
+    const fullURL = util.format( uploadsURL, querystring.stringify( queryObject ) );
 
-describe( 'Finalize upload',  ()=>{
+    const requestContext = { 
+        payload:  null,
+        filePath: filePath,
+        worksheetID: worksheetID,
+        options:  url.parse( fullURL ),
+        importer: importerType
+    };
 
-  
+    compose(
 
-} );
+      sendColumnMapping,
+      uploadChunks,
+      fetchUploadLinks.bind( null, requestContext )
+    
+    )( ( err, res )=>{
+
+      if( err ){
+
+        done( err );
+      
+      } else {
+
+        expect( res ).toBe( 'Accepted', `Unexpected response` );
+        done();
+
+      }
+
+    } );
+
+ } );
+
+} )
 
 /**
  * Performs in an initial POST to /uploads to retrieve the corresponding 
@@ -132,8 +161,7 @@ describe( 'Finalize upload',  ()=>{
  */
 function fetchUploadLinks( requestContext, next ){
 
-  const updatedRequestContext = {};
-  const requestContextStream = just( requestContext );
+  const requestContextStream = just( requestContext.options );
   const uploadContainerStream = createUploadContainer();
   
   requestContextStream
@@ -141,22 +169,22 @@ function fetchUploadLinks( requestContext, next ){
   .pipe( uploadContainerStream )
   .on( 'error', ( err )=>{} )
   .on( 'data', ( data )=>{
-    Object.assign( updatedRequestContext, data );
+    requestContext.links = data._links;
   } )
   .on( 'end', ()=>{
-    next( null, updatedRequestContext );
+    next( null, requestContext );
   } );
 
 }
 
 /**
  * 
- * @param {*} requestContext 
- * @param {*} next 
+ * @param {object} requestContext The information about the request being made.
+ * @param {function} next The callback.
  */
 function uploadChunks( requestContext, next ){
   
-  const fileChunkStream = generateChunks( requestContext.filePath, MAX_CHUNK_SIZE );
+  const generateChunksStream = generateChunks( MAX_CHUNK_SIZE );
 
   let chunkIndex = 0;
   let response;
@@ -165,12 +193,9 @@ function uploadChunks( requestContext, next ){
   .on( 'error', ( err )=>{
     next( err );
   } )
-  .pipe( fileChunkStream )
+  .pipe( generateChunksStream )
   .on( 'error', ( err )=>{
     next( err );
-  } )
-  .on( 'data', ( data )=>{
-    // console.log( `Chunk #${ ++chunkIndex } created (Size: ${ data.chunkMetaData.length }).` );
   } )
   .pipe( sendChunks( requestContext, MAX_CHUNK_SIZE ) )
   .on( 'error', ( err )=>{
@@ -192,17 +217,20 @@ function uploadChunks( requestContext, next ){
 function sendColumnMapping( requestContext, uploadResponse, next ){
 
   const importerContainerURL = uploadResponse._links.next.href;
+  const payload = spreadsheetColumnMaps[ requestContext.importer ];
+  let response;
 
   just( importerContainerURL )
-  .pipe( getWorksheetsData( requestContext.worksheetIDs ) )
+  .pipe( getWorksheetsData( requestContext.worksheetID ) )
   .on( 'error', ( err )=>{
     next( err );
   } )
+  .pipe( uploadColumnMap( JSON.stringify( payload ) ) )
   .on( 'data', ( data )=>{
-    console.log( data );
+    response = data;
   } )
-  .on( 'end', ()=>{ 
-    next( null, requestContext );
+  .on( 'finish', ()=>{ 
+    next( null, response );
   } );
 
 }

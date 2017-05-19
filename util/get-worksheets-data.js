@@ -4,7 +4,7 @@ const sendRequest = require( './external-request/send-request' );
 
 const url = require( 'url' );
 
-function getWorksheetsData( worksheetIDs ){
+function getWorksheetsData( worksheetID ){
 
   /**
    * 
@@ -20,13 +20,22 @@ function getWorksheetsData( worksheetIDs ){
 
     sendRequest( getOptions, null , ( err, res )=>{
 
-      const worksheetsData = res.filter( ( worksheet )=>{ 
+      const worksheetData = res.find( ( worksheet )=>{ 
 
-        return worksheetIDs.includes( worksheet.id );
+        return worksheetID === worksheet.id;
 
       } );
 
-      process.nextTick( next.bind( null, null, worksheetsData ) );
+      if( !worksheetData ){
+        
+        const err = { message: `Invalid worksheet ID: ${ worksheetData }` };
+        process.nextTick( next.bind( null, err ) );
+
+      } else {
+
+        process.nextTick( next.bind( null, null, worksheetData ) );
+
+      }
 
     } );
       

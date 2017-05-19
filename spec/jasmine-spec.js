@@ -34,14 +34,6 @@
 
 // describe( 'Post using existing library',  ()=>{
 
-//   /**
-//    * 1. Post to /uploads
-//    * 2. Post to /uploads/<container>/upload
-//    *    a) Create Read File Stream.
-//    *    b) Post each chunk -> get response
-//    * 3. ???
-//    * 4. Profit
-//    */
 //   it( 'Should be able to chain together POST requests', ( done )=>{
 
 //     const fullURL = util.format( uploadsURL, querystring.stringify( queryObject ) );
@@ -54,7 +46,6 @@
 //         options:  url.parse( fullURL ),
 //         importer: importerType
 //     };
-
 
 //     compose(
 
