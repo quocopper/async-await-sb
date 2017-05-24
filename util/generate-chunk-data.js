@@ -44,7 +44,7 @@ function generateChunkData( chunkSize ){
 
       } ) )
       .on( 'finish', next )
-      .resume(); // without data listener must call resume...
+      .resume(); // Resume is necessary when no 'data' listener is added.
     } )
 
     function generateChunkDataArray( stat ){

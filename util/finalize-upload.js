@@ -24,16 +24,19 @@ const sendRequest = require( './external-request/send-request' );
 
 const queryString = require( 'querystring' );
 
-function finalizeUpload( requestContext ){
+function finalizeUpload(){
 
   const finalizePayload = {};
+  let finalizeURL;
 
-  function transform( chunkNames, _, next ){
+  function transform( requestContext, _, next ){
 
     finalizePayload.importer = requestContext.importer;
     finalizePayload.fileName = path.basename( requestContext.filePath );
     finalizePayload.fileSize = requestContext.fileSize;
-    finalizePayload.chunkList = chunkNames;
+    finalizePayload.chunkList = requestContext.chunkResult.chunkList;
+
+    finalizeURL = requestContext.lastResponse._links.finalize.href;
 
     process.nextTick( next );
 
@@ -46,7 +49,7 @@ function finalizeUpload( requestContext ){
    */
   function flush( done ) {
 
-    const finalizeOptions = url.parse( requestContext.links.finalize.href );
+    const finalizeOptions = url.parse( finalizeURL );
 
     const stringPayload = JSON.stringify( finalizePayload );
 

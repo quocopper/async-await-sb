@@ -24,7 +24,7 @@ const sendRequest = require( './external-request/send-request' );
 
 function sendChunks( requestContext, chunkSize ){
 
-  const numchunks = requestContext.numChunks;
+  const successfulChunks = [];
 
   /**
    * 
@@ -75,7 +75,7 @@ function sendChunks( requestContext, chunkSize ){
      */
     function sendChunk( dataChunk, next ){
 
-      const uploadOptions = url.parse( requestContext.links.upload.href );
+      const uploadOptions = url.parse( requestContext.lastResponse._links.upload.href );
       uploadOptions.method = 'post';
 
       const form = new FormData();
@@ -87,11 +87,6 @@ function sendChunks( requestContext, chunkSize ){
     
       const query = uploadOptions.query;
 
-      const accResponse = [];
-
-      /**
-       * Use http module directly.
-       */
       const req = http.request( uploadOptions, ( res )=>{
 
         res
@@ -105,15 +100,16 @@ function sendChunks( requestContext, chunkSize ){
         .on( 'end', ()=>{
 
           if( res.statusCode === 200 ){
+
+            successfulChunks.push( chunkMetaData.index.toString() );
             next();
-          }
-          else{
+
+          }else{
             next( {
               statusCode: res.statusCode,
-              error: `Unable to upload chunk #${chunkMetaData.index + 1}.`
-            } ); 
+              error: `Unable to upload chunk #${ chunkMetaData.index + 1 }.`
+            } );
           }
-          
         
         } );
         
@@ -136,7 +132,12 @@ function sendChunks( requestContext, chunkSize ){
     try {
 
       const chunkList = Array.from( { length: requestContext.numChunks }, ( v, i ) => i.toString() );
-      process.nextTick( done.bind( null, null, chunkList ) );
+      const result = {
+        chunkList:        chunkList,
+        successfulChunks: successfulChunks
+      };
+
+      process.nextTick( done.bind( null, null, result ) );
       
     } catch ( error ) {
       

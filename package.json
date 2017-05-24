@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "jasmine spec/uploader-spec.js"
+    "test": "jasmine spec/bk-uploader-spec.js"
   },
   "repository": "www.blah.com",
   "author": "",

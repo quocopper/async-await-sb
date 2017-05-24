@@ -25,7 +25,7 @@ function createUploadContainer(){
       }
 
     } );
-      
+  
   }
 
   return require( 'stream' ).Transform( {
