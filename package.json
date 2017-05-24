@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "jasmine spec/uploader-spec.js"
+    "test": "jasmine spec/uploader-spec.js",
+    "test-ddt": "jasmine spec/data-driven-spec.js"
   },
   "repository": "www.blah.com",
   "author": "",
@@ -15,6 +16,7 @@
     "bluebird": "^3.5.0",
     "form-data": "^2.1.4",
     "jasmine": "^2.5.3",
+    "jasmine-data-provider": "^2.2.0",
     "multipipe": "^1.0.2",
     "request": "^2.81.0",
     "tessa-common": "git+ssh://git@github.com:copperleaftech/tessa-common.git#v1.0.1",
