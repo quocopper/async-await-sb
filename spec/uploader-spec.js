@@ -1,295 +1,297 @@
-// const http = require( 'http' );
-// const url = require( 'url' );
-// const querystring = require( 'querystring' );
-// const fs = require( 'fs' );
-// const path = require( 'path' );
-// const util = require( 'util' );
-// const stream = require( 'stream' );
-// const Transform = stream.Transform;
-// const PassThrough = stream.PassThrough;
+const http = require( 'http' );
+const url = require( 'url' );
+const querystring = require( 'querystring' );
+const fs = require( 'fs' );
+const path = require( 'path' );
+const util = require( 'util' );
+const stream = require( 'stream' );
+const Transform = stream.Transform;
+const PassThrough = stream.PassThrough;
 
-// const apply = require( 'tessa-common/lib/stream/apply' );
-// const just = require( 'tessa-common/lib/stream/just' );
-// const flatten = require( 'tessa-common/lib/stream/flatten' );
-// const sendRequest = require( '../util/external-request/send-request' );
-// const createUploadContainer = require( '../util/create-upload-container' );
-// const generateChunks = require( '../util/generate-chunk-data' );
-// const sendChunks = require( '../util/send-chunks' );
-// const finalizeUpload = require( '../util/finalize-upload' );
-// const getWorksheetsData = require( '../util/get-worksheets-data' );
-// const uploadColumnMap = require( '../util/upload-column-map' );
+const apply = require( 'tessa-common/lib/stream/apply' );
+const just = require( 'tessa-common/lib/stream/just' );
+const flatten = require( 'tessa-common/lib/stream/flatten' );
+const sendRequest = require( '../util/external-request/send-request' );
+const createUploadContainerStream = require( '../util/create-upload-container' );
+const generateChunksStream = require( '../util/generate-chunk-data' );
+const sendChunksStream = require( '../util/send-chunks' );
+const finalizeUploadStream = require( '../util/finalize-upload' );
+const getWorksheetsDataStream = require( '../util/get-worksheets-data' );
+const uploadColumnMapStream = require( '../util/upload-column-map' );
 
-// const uploadsURL = 'http://quoc-virtualbox:3002/uploads?%s';
-// const importersURL = 'http://quoc-virtualbox:3001/importers';
-// const importerType = 'asset-types';
-// const spreadsheetColumnMaps = require( './test-data/spreadsheet-column-maps' );
-// const uploadContainerURL = `${ importersURL }/${ importerType }/{container}`;
-// const queryObject = { onUploaded: uploadContainerURL };
-// const compose = require( 'async/compose' );
+const uploadsURL = 'http://quoc-virtualbox:3002/uploads?%s';
+const importersURL = 'http://quoc-virtualbox:3001/importers';
+const importerType = 'asset-types';
+const spreadsheetColumnMaps = require( './test-data/spreadsheet-column-maps' );
+const uploadContainerURL = `${ importersURL }/${ importerType }/{container}`;
+const queryObject = { onUploaded: uploadContainerURL };
+const compose = require( 'async/compose' );
 
-// const MAX_CHUNK_SIZE = 1048576;
+const MAX_CHUNK_SIZE = 1048576;
 
-// const filePath = 'spec/test-data/1 - Asset Types Importer.xlsx';
-// const worksheetID = '1';
+const filePath = 'spec/test-data/1 - Asset Types Importer.xlsx';
+const worksheetID = '1';
 
-// let container_url;
-// let status_code;
+let container_url;
+let status_code;
 
-// describe( 'POST /uploads', ()=>{
+describe( 'POST /uploads', ()=>{
 
-//   it( 'When user POSTs to /uploads the response should contain the endpoints for canceling, uploading and finalizing and upload.', ( done )=>{
+  it( 'When successfully POSTing to /uploads the response should contain the endpoints for canceling, uploading and finalizing and upload.', ( done )=>{
 
-//     const requestOptions = url.parse( util.format( uploadsURL, querystring.stringify( queryObject ) ) );
+    const requestOptions = url.parse( util.format( uploadsURL, querystring.stringify( queryObject ) ) );
 
-//     requestOptions.method = 'post';
+    requestOptions.method = 'post';
 
-//     fetchUploadLinks( ()=>{
-
-//     } );
-
-//     // just( requestOptions )
-//     // .pipe( createUploadContainer() )
-//     // .on( 'data', ( res )=>{
-
-//     //   const links = res._links;
-//     //   const container = res.container;
-//     //   container_url = links.upload.href;
-
-//     //   expect( container.length > 0 ).toBe( true, `Invalid container ID: ${ container }` );
-//     //   expect( links.upload.href ).toContain( `/${ container }`, `The upload URL did not contain the container ID.` );
-//     //   expect( links.cancel.href ).toContain( `/${ container }`, `The cancel URL did not contain the container ID.` );
-//     //   expect( links.finalize.href ).toContain( `/${ container }`, `The upload URL did not contain the container ID.` );
-      
-//     // } )
-//     // .on( 'error', ( err )=>{
-
-//     //   expect( err ).toBe( null, `Upload failed: ${ err }.` );
-//     //   done();
-      
-//     // } )
-//     // .on( 'end', done );
-
-//   } );
-
-// } );
-
-// describe( 'DELETE /uploads/{container id}', ()=>{
-
-//   let containerURL;
-
-//   beforeAll( ( done )=>{
-
-//     const requestOptions = url.parse( util.format( uploadsURL, querystring.stringify( queryObject ) ) );
-
-//     requestOptions.method = 'post';
-
-//     just( url.parse( requestOptions ) )
-//     .pipe( createUploadContainer() )
-//     .on( 'data', ( res )=>{
-
-//       containerURL = res._links.cancel.href;
-      
-//     } )
-//     .on( 'error', ( err )=>{
-
-//       expect( err ).toBe( null, `Unable to setup the DELETE container test: ${ err }` );
-//       done();
-      
-//     } )
-//     .on( 'end', done );
-  
-//   } );
-
-//   it( 'When DELETEing a valid container, the response should return a 200 or 204.', ( done )=>{
-
-//     const requestOptions = url.parse( containerURL );
-
-//     requestOptions.method = 'delete';
-
-//     sendRequest( requestOptions, null, ( err, res )=>{
-      
-//       expect( err ).toBe( null, `Unable to delete container at this URL: ${ containerURL }` );
-//       done();
-
-//     } );
-
-//   } );
-
-// } );
-
-// describe( 'Send file chunks and finalize the complete upload', ()=>{
-
-//   it( 'Should be able to POST mulitple chunks to the server.', ( done )=>{
-
-//     const fullURL = util.format( uploadsURL, querystring.stringify( queryObject ) );
-
-//     const requestContext = { 
-//         payload:  null,
-//         filePath: filePath,
-//         worksheetID: worksheetID,
-//         options:  url.parse( fullURL ),
-//         importer: importerType
-//     };
-
-//     compose(
-
-//       sendColumnMapping,
-//       uploadChunks,
-//       fetchUploadLinks.bind( null, requestContext )
+    const requestContext = { options: requestOptions };
     
-//     )( ( err, res )=>{
+    // CPS - Contains the original request + latest response.
+    fetchUploadLinks( requestContext, ( err, res )=>{
 
-//       if( err ){
+      const links = res.lastResponse._links;
+      const containerID = res.lastResponse.container;
 
-//         done( err );
-      
-//       } else {
+      expect( containerID ).toBeTruthy( `Invalid container ID returned.` );
+      expect( links.upload.href ).toContain( `uploads/${ containerID }`, `Unexpected upload endpoint returned.` );
+      expect( links.cancel.href ).toContain( `uploads/${ containerID }`, `Unexpected cancel endpoint returned.` );
+      expect( links.finalize.href ).toContain( `uploads/${ containerID }`, `Unexpected finalize endpoint returned.` );
 
-//         expect( res ).toBe( 'Accepted', `Unexpected response` );
-//         done();
+      done();
 
-//       }
-
-//     } );
-
-//  } );
-
-// } )
-
-// describe( 'Send file chunks and finalize the complete upload', ()=>{
-
-//   it( 'Should be able to POST mulitple chunks to the server.', ( done )=>{
-
-//     const fullURL = util.format( uploadsURL, querystring.stringify( queryObject ) );
-
-//     const requestContext = { 
-//         payload:  null,
-//         filePath: filePath,
-//         worksheetID: worksheetID,
-//         options:  url.parse( fullURL ),
-//         importer: importerType
-//     };
-
-//     compose(
-
-//       sendColumnMapping,
-//       uploadChunks,
-//       fetchUploadLinks.bind( null, requestContext )
+    } );
     
-//     )( ( err, res )=>{
 
-//       if( err ){
+  } );
 
-//         done( err );
+} );
+
+describe( 'DELETE /uploads/{container id}', ()=>{
+
+  let containerURL;
+
+  beforeAll( ( done )=>{
+
+    const requestOptions = url.parse( util.format( uploadsURL, querystring.stringify( queryObject ) ) );
+
+    requestOptions.method = 'post';
+
+    just( url.parse( requestOptions ) )
+    .pipe( createUploadContainerStream() )
+    .on( 'data', ( res )=>{
+
+      containerURL = res._links.cancel.href;
       
-//       } else {
+    } )
+    .on( 'error', ( err )=>{
 
-//         expect( res ).toBe( 'Accepted', `Unexpected response` );
-//         done();
-
-//       }
-
-//     } );
-
-//  } );
-
-// } )
-
-// /**
-//  * Performs an initial POST to /uploads to retrieve and returns both 
-//  * original request context and the upload/cancel/finalize URLs.
-//  * 
-//  * @param {object} requestContext the original request context
-//  * @param {function} next a callback
-//  */
-// function fetchUploadLinks( requestContext, next ){
-
-//   const requestContextStream = just( requestContext.options );
-//   const uploadContainerStream = createUploadContainer();
+      expect( err ).toBe( null, `Unable to setup the DELETE container test: ${ err }` );
+      done();
+      
+    } )
+    .on( 'end', done );
   
-//   requestContextStream
-//   .on( 'error', ( err )=>{} )
-//   .pipe( uploadContainerStream )
-//   .on( 'error', ( err )=>{} )
-//   .on( 'data', ( data )=>{
-//     requestContext.previousResponse = data;
-//   } )
-//   .on( 'end', ()=>{
-//     next( null, requestContext );
-//   } );
+  } );
 
-// }
+  it( 'When DELETEing a valid container, the response should return a 200 or 204.', ( done )=>{
 
-// /**
-//  * 
-//  * @param {object} requestContext The information about the request being made.
-//  * @param {function} next The callback.
-//  */
-// function uploadChunks( requestContext, next ){
+    const requestOptions = url.parse( containerURL );
+
+    requestOptions.method = 'delete';
+
+    sendRequest( requestOptions, null, ( err, res )=>{
+      
+      expect( err ).toBe( null, `Unable to delete container at this URL: ${ containerURL }` );
+      done();
+
+    } );
+
+  } );
+
+} );
+
+describe( 'POST /uploads/{container}', ()=>{
+
+  it( 'Should be able to POST multiple chunks (without finalizing the upload).', ( done )=>{
+
+    const fullURL = util.format( uploadsURL, querystring.stringify( queryObject ) );
+
+    const requestContext = { 
+        payload:  null,
+        filePath: filePath,
+        worksheetID: worksheetID,
+        options:  url.parse( fullURL ),
+        importer: importerType
+    };
+
+    compose(
+
+      uploadChunks,
+      fetchUploadLinks.bind( null, requestContext )
+    
+    )( ( err, res )=>{
+
+      if( err ){
+
+        done( err );
+      
+      } else {
+
+        const successfulChunks = res.chunkResult.successfulChunks.length;
+        const totalChunks = res.chunkResult.chunkList.length;
+
+        expect( successfulChunks ).toEqual( totalChunks, `Expected ${ totalChunks } file chunks to be uploaded but got ${ successfulChunks } instead.` );
+        done();
+
+      }
+
+    } );
+
+  } );
+
+} )
+
+describe( 'POST to /uploads/{container}/finalize', ()=>{
+
+  it( 'Should be able to finalize an upload.', ( done )=>{
+
+    const fullURL = util.format( uploadsURL, querystring.stringify( queryObject ) );
+
+    const requestContext = { 
+        payload:  null,
+        filePath: filePath,
+        worksheetID: worksheetID,
+        options:  url.parse( fullURL ),
+        importer: importerType
+    };
+
+    compose(
+
+      finalize,
+      uploadChunks,
+      fetchUploadLinks.bind( null, requestContext )
+    
+    )( ( err, res )=>{
+
+      if( err ){
+
+        done( err );
+      
+      } else {
+
+        const nextURL = res.lastResponse._links.next.href;
+        const importer = res.importer;
+
+        expect( nextURL ).toContain( `/importers/${ importer }`, `Unexpected importer endpoint returned.` );
+        done();
+
+      }
+
+    } );
+
+ } );
+
+} )
+
+/**
+ * Performs an initial POST to /uploads to retrieve and returns both 
+ * original request context and the upload/cancel/finalize URLs.
+ * 
+ * @param {object} requestContext the original request context
+ * @param {function} next a callback
+ */
+function fetchUploadLinks( requestContext, next ){
+
+  const requestContextStream = just( requestContext.options );
+  const uploadContainerStream = createUploadContainerStream();
   
-//   const generateChunksStream = generateChunks( MAX_CHUNK_SIZE );
+  requestContextStream
+  .on( 'error', ( err )=>{} )
+  .pipe( uploadContainerStream )
+  .on( 'error', ( err )=>{} )
+  .on( 'data', ( data )=>{
+    requestContext.lastResponse = data;
+  } )
+  .on( 'end', ()=>{
+    next( null, requestContext );
+  } );
 
-//   just( requestContext )
-//   .on( 'error', ( err )=>{
-//     next( err );
-//   } )
-//   .pipe( generateChunksStream )
-//   .on( 'error', ( err )=>{
-//     next( err );
-//   } )
-//   .pipe( sendChunks( requestContext, MAX_CHUNK_SIZE ) )
-//   .on( 'data', ( data )=>{
-//     requestContext.previousResponse = data;
-//   } )
-//   .on( 'error', ( err )=>{
-//     next( err );
-//   } )
-//   .on( 'end', ()=>{
-//     next( null, requestContext );
-//   } );
+}
 
+/**
+ * Uploads a binary file to the server in MAX_CHUNK_SIZE chunks.
+ * 
+ * @param {object} requestContext The information about the request being made.
+ * @param {function} next The callback.
+ */
+function uploadChunks( requestContext, next ){
 
-// }
+  just( requestContext )
+  .on( 'error', ( err )=>{
+    next( err );
+  } )
+  .pipe( generateChunksStream( MAX_CHUNK_SIZE ) )
+  .on( 'error', ( err )=>{
+    next( err );
+  } )
+  .pipe( sendChunksStream( requestContext, MAX_CHUNK_SIZE ) )
+  .on( 'data', ( data )=>{
+    requestContext.chunkResult = data;
+  } )
+  .on( 'error', ( err )=>{
+    next( err );
+  } )
+  .on( 'end', ()=>{
+    next( null, requestContext );
+  } );
 
-// function finalize( requestContext, next ){
+}
 
-//   finalizeUpload( requestContext )
-//   .on( 'error', ( err )=>{
-//     next( err );
-//   } )
-//   .on( 'data', ( data )=>{
-//     requestContext.previousResponse = data;
-//   } )
-//   .on( 'end', ()=>{ 
-//     next( null, requestContext );
-//   } );
+/**
+ * Finalizes an upload. 
+ * 
+ * @param {*} requestContext 
+ * @param {*} next 
+ */
+function finalize( requestContext, next ){
 
-// }
+  just( requestContext )
+  .pipe( finalizeUploadStream() )
+  .on( 'error', ( err )=>{
+    next( err );
+  } )
+  .on( 'data', ( data )=>{
+    requestContext.lastResponse = data;
+  } )
+  .on( 'end', ()=>{ 
+    next( null, requestContext );
+  } );
 
-// /**
-//  * This is for the /importers endpoint.
-//  * 
-//  * @param {*} requestContext 
-//  * @param {*} uploadResponse 
-//  * @param {*} next 
-//  */
-// function sendColumnMapping( requestContext, uploadResponse, next ){
+}
 
-//   const importerContainerURL = uploadResponse._links.next.href;
-//   const payload = spreadsheetColumnMaps[ requestContext.importer ];
-//   let response;
+/**
+ * Sends the column mapping to the /importers endpoint in order to complete data import.
+ * 
+ * @param {*} requestContext 
+ * @param {*} uploadResponse 
+ * @param {*} next 
+ */
+function sendColumnMapping( requestContext, uploadResponse, next ){
 
-//   just( importerContainerURL )
-//   .pipe( getWorksheetsData( requestContext.worksheetID ) )
-//   .on( 'error', ( err )=>{
-//     next( err );
-//   } )
-//   .pipe( uploadColumnMap( JSON.stringify( payload ) ) )
-//   .on( 'data', ( data )=>{
-//     response = data;
-//   } )
-//   .on( 'finish', ()=>{ 
-//     next( null, response );
-//   } );
+  const importerContainerURL = uploadResponse._links.next.href;
+  const payload = spreadsheetColumnMaps[ requestContext.importer ];
+  let response;
 
-// }
+  just( importerContainerURL )
+  .pipe( getWorksheetsDataStream( requestContext.worksheetID ) )
+  .on( 'error', ( err )=>{
+    next( err );
+  } )
+  .pipe( uploadColumnMapStream( JSON.stringify( payload ) ) )
+  .on( 'data', ( data )=>{
+    response = data;
+  } )
+  .on( 'finish', ()=>{ 
+    next( null, response );
+  } );
+
+}
