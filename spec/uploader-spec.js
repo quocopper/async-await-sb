@@ -45,7 +45,6 @@ describe( 'POST /uploads', ()=>{
 
     const requestContext = { options: requestOptions };
     
-    // CPS - Contains the original request + latest response.
     fetchUploadLinks( requestContext, ( err, res )=>{
 
       const links = res.lastResponse._links;

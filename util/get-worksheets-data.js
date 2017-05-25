@@ -1,6 +1,6 @@
 'use strict';
 
-const sendRequest = require( './external-request/send-request' );
+const sendRequest = require( 'tessa-common/lib/external-request/send-request' );
 
 const url = require( 'url' );
 
@@ -9,8 +9,9 @@ function getWorksheetsData( worksheetID ){
   /**
    * 
    * @param {String} importContainerURL The URL of the importer container.
-   * @param {} _ 
+   * @param {string} _ the encoding
    * @param {function} next The callback
+   * @returns {object} the metadata for the worksheet being return
    */
   function transform( importContainerURL, _, next ){
 
@@ -18,7 +19,7 @@ function getWorksheetsData( worksheetID ){
 
     getOptions.method = 'get';
 
-    sendRequest( getOptions, null , ( err, res )=>{
+    sendRequest( getOptions, null, ( err, res )=>{
 
       const worksheetData = res.find( ( worksheet )=>{ 
 

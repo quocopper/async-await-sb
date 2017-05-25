@@ -1,14 +1,12 @@
 'use strict';
 
-const post = require( './external-request/post' );
+const post = require( 'tessa-common/lib/external-request/post' );
 
 const fs = require( 'fs' );
 
 const url = require( 'url' );
 
 const compose = require( 'async/compose' );
-
-const asyncify = require( 'asyncify' );
 
 const fromArray = require( 'tessa-common/lib/stream/from-array' );
 
@@ -20,7 +18,7 @@ const http = require( 'http' );
 
 const path = require( 'path' );
 
-const sendRequest = require( './external-request/send-request' );
+const sendRequest = require( 'tessa-common/lib/external-request/send-request' );
 
 function uploadColumnMap( columnMap ){
 

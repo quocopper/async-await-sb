@@ -1,15 +1,16 @@
 {
   "name": "async-await-sb",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "main": "index.js",
   "scripts": {
-    "test": "jasmine spec/uploader-spec.js",
-    "test-ddt": "jasmine spec/data-driven-spec.js"
+    "test": "jasmine spec/data-driven-spec.js",
+    "testddt": "jasmine spec/data-driven-spec.js",
+    "abc": "jasmine spec/uploader-spec.js"
   },
   "repository": "www.blah.com",
   "author": "",
   "license": "ISC",
-  "description": "Async Sandbox",
+  "description": "Tessa API tests",
   "dependencies": {
     "async": "^2.4.0",
     "asyncify": "^2.1.2",
