@@ -24,8 +24,6 @@ function uploadColumnMap( columnMap ){
 
   /**
    * 
-   * @param {object} chunkMetaData is the information regarding the chunked data to send, 
-   * @param {object} requestContext is the information relating the request being made
    * @param {string} _ the encoding
    * @param {function} next the callback.
    */

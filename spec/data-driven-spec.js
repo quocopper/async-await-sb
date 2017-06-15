@@ -9,29 +9,29 @@ const testMatrix = {
 describe('Query various urls', ()=>{
 
 // Use Array.prototype.forEach method
-// testMatrix.forEach( ( item )=>{
+testMatrix.forEach( ( item )=>{
 
-//   testitem = itemTransformation( item )
-//   it( item.description, ( done )=>{
+  testitem = itemTransformation( item )
+  it( item.description, ( done )=>{
 
-//     item.data // do operations
+    item.data // do operations
 
-//   } );
+  } );
 
-// } );
-  using( testMatrix, ( data, description )=>{
-    it( description, ( done )=>{
+} );
+  // using( testMatrix, ( data, description )=>{
+  //   it( description, ( done )=>{
       
-      http.request( data.url, ( res )=>{
-        expect( res.statusCode ).toEqual( data.expected );
-        done();
-      } )
-      .on( 'error', (err)=>{
-        console.log( err );
-        done( err ); 
-      } )
-      .end();
+  //     http.request( data.url, ( res )=>{
+  //       expect( res.statusCode ).toEqual( data.expected );
+  //       done();
+  //     } )
+  //     .on( 'error', (err)=>{
+  //       console.log( err );
+  //       done( err ); 
+  //     } )
+  //     .end();
       
-    });
-  });
+  //   });
+  // });
 });

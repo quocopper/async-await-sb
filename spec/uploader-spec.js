@@ -267,30 +267,3 @@ function finalize( requestContext, next ){
 
 }
 
-/**
- * Sends the column mapping to the /importers endpoint in order to complete data import.
- * 
- * @param {*} requestContext 
- * @param {*} uploadResponse 
- * @param {*} next 
- */
-function sendColumnMapping( requestContext, uploadResponse, next ){
-
-  const importerContainerURL = uploadResponse._links.next.href;
-  const payload = spreadsheetColumnMaps[ requestContext.importer ];
-  let response;
-
-  just( importerContainerURL )
-  .pipe( getWorksheetsDataStream( requestContext.worksheetID ) )
-  .on( 'error', ( err )=>{
-    next( err );
-  } )
-  .pipe( uploadColumnMapStream( JSON.stringify( payload ) ) )
-  .on( 'data', ( data )=>{
-    response = data;
-  } )
-  .on( 'finish', ()=>{ 
-    next( null, response );
-  } );
-
-}
