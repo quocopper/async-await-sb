@@ -16,6 +16,8 @@
     "asyncify": "^2.1.2",
     "bluebird": "^3.5.0",
     "form-data": "^2.1.4",
+    "google-auth-library": "^0.10.0",
+    "googleapis": "^19.0.0",
     "jasmine": "^2.5.3",
     "jasmine-data-provider": "^2.2.0",
     "multipipe": "^1.0.2",
