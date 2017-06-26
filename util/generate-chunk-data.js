@@ -45,7 +45,8 @@ function generateChunkData( chunkSize ){
       } ) )
       .on( 'finish', next )
       .resume(); // Resume is necessary when no 'data' listener is added.
-    } )
+    
+    } );
 
     function generateChunkDataArray( stat ){
 
@@ -78,7 +79,7 @@ function generateChunkData( chunkSize ){
   return require( 'stream' ).Transform( {
     objectMode: true,
     transform,
-    flush: require( 'tessa-common/lib/stream/util/just-flush' )
+    flush:      require( 'tessa-common/lib/stream/util/just-flush' )
   } );
 
 }

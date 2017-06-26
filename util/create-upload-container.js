@@ -31,7 +31,7 @@ function createUploadContainer(){
   return require( 'stream' ).Transform( {
     objectMode: true,
     transform,
-    flush: require( 'tessa-common/lib/stream/util/just-flush' )
+    flush:      require( 'tessa-common/lib/stream/util/just-flush' )
   } );
 
 }

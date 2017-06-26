@@ -21,15 +21,12 @@ function getWorksheetsData( worksheetID ){
 
     sendRequest( getOptions, null, ( err, res )=>{
 
-      const worksheetData = res.find( ( worksheet )=>{ 
-
-        return worksheetID === worksheet.id;
-
-      } );
+      const worksheetData = res.find( ( worksheet )=>worksheetID === worksheet.id );
 
       if( !worksheetData ){
         
         const err = { message: `Invalid worksheet ID: ${ worksheetData }` };
+
         process.nextTick( next.bind( null, err ) );
 
       } else {
@@ -45,7 +42,7 @@ function getWorksheetsData( worksheetID ){
   return require( 'stream' ).Transform( {
     objectMode: true,
     transform,
-    flush: require( 'tessa-common/lib/stream/util/just-flush' )
+    flush:      require( 'tessa-common/lib/stream/util/just-flush' )
   } );
 
 }

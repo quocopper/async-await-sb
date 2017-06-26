@@ -67,6 +67,7 @@ function postToURL( requestURL, next ){
     next( statusMessage );
     
   } ).end();
+
 }
 
 /**
@@ -79,8 +80,8 @@ function postToURL( requestURL, next ){
 function uploadFile( requestURL, filePath, done ){
 
   const requestContext = { 
-    requestURL: requestURL,
-    filePath:   filePath
+    requestURL,
+    filePath
   };
 
   // TODO: Pipe some more streams...

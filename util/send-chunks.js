@@ -14,9 +14,9 @@ const fromArray = require( 'tessa-common/lib/stream/from-array' );
 
 const apply = require( 'tessa-common/lib/stream/apply' );
 
-const FormData = require('form-data');
+const FormData = require( 'form-data' );
 
-const http = require('http');
+const http = require( 'http' );
 
 const path = require( 'path' );
 
@@ -76,9 +76,11 @@ function sendChunks( requestContext, chunkSize ){
     function sendChunk( dataChunk, next ){
 
       const uploadOptions = url.parse( requestContext.lastResponse._links.upload.href );
+
       uploadOptions.method = 'post';
 
       const form = new FormData();
+
       form.append( 'chunk', dataChunk, chunkMetaData.index.toString() );
 
       const headers = form.getHeaders();
@@ -94,7 +96,7 @@ function sendChunks( requestContext, chunkSize ){
         } )
         .on( 'error', ( err )=>{
         
-           next( err );
+          next( err );
         
         } )
         .on( 'end', ()=>{
@@ -105,10 +107,12 @@ function sendChunks( requestContext, chunkSize ){
             next();
 
           }else{
+
             next( {
               statusCode: res.statusCode,
-              error: `Unable to upload chunk #${ chunkMetaData.index + 1 }.`
+              error:      `Unable to upload chunk #${ chunkMetaData.index + 1 }.`
             } );
+          
           }
         
         } );
@@ -131,15 +135,12 @@ function sendChunks( requestContext, chunkSize ){
 
     try {
 
-      const chunkList = Array.from( { length: requestContext.numChunks }, ( v, i ) => i.toString() );
-      const result = {
-        chunkList:        chunkList,
-        successfulChunks: successfulChunks
-      };
+      const chunkList = Array.from( { length: requestContext.numChunks }, ( v, i )=>i.toString() );
+      const result = { chunkList, successfulChunks };
 
       process.nextTick( done.bind( null, null, result ) );
       
-    } catch ( error ) {
+    } catch ( error ){
       
       process.nextTick( done.bind( null, error, null ) );
 

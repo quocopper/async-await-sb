@@ -46,7 +46,7 @@ function uploadColumnMap( columnMap ){
       
       options.method = 'post';
       options.headers = { 
-        'Content-Type': 'application/json',
+        'Content-Type':   'application/json',
         'Content-Length': columnMapPayload.length
       };
 
@@ -55,6 +55,7 @@ function uploadColumnMap( columnMap ){
         process.nextTick( next.bind( null, null, res ) );
 
       } );
+    
     }
 
 
@@ -69,6 +70,7 @@ function uploadColumnMap( columnMap ){
         process.nextTick( next.bind( null, null, res._links.next.href, columnMap ) );
 
       } );
+    
     }
 
   }
@@ -76,7 +78,7 @@ function uploadColumnMap( columnMap ){
   return require( 'stream' ).Transform( {
     objectMode: true,
     transform,
-    flush: require( 'tessa-common/lib/stream/util/just-flush' )
+    flush:      require( 'tessa-common/lib/stream/util/just-flush' )
   } );
 
 }

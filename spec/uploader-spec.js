@@ -50,10 +50,10 @@ describe( 'POST /uploads', ()=>{
       const links = res.lastResponse._links;
       const containerID = res.lastResponse.container;
 
-      expect( containerID ).toBeTruthy( `Invalid container ID returned.` );
-      expect( links.upload.href ).toContain( `uploads/${ containerID }`, `Unexpected upload endpoint returned.` );
-      expect( links.cancel.href ).toContain( `uploads/${ containerID }`, `Unexpected cancel endpoint returned.` );
-      expect( links.finalize.href ).toContain( `uploads/${ containerID }`, `Unexpected finalize endpoint returned.` );
+      expect( containerID ).toBeTruthy( 'Invalid container ID returned.' );
+      expect( links.upload.href ).toContain( `uploads/${ containerID }`, 'Unexpected upload endpoint returned.' );
+      expect( links.cancel.href ).toContain( `uploads/${ containerID }`, 'Unexpected cancel endpoint returned.' );
+      expect( links.finalize.href ).toContain( `uploads/${ containerID }`, 'Unexpected finalize endpoint returned.' );
 
       done();
 
@@ -115,11 +115,11 @@ describe( 'POST /uploads/{container}', ()=>{
     const fullURL = util.format( uploadsURL, querystring.stringify( queryObject ) );
 
     const requestContext = { 
-        payload:  null,
-        filePath: filePath,
-        worksheetID: worksheetID,
-        options:  url.parse( fullURL ),
-        importer: importerType
+      payload:  null,
+      filePath,
+      worksheetID,
+      options:  url.parse( fullURL ),
+      importer: importerType
     };
 
     compose(
@@ -147,7 +147,7 @@ describe( 'POST /uploads/{container}', ()=>{
 
   } );
 
-} )
+} );
 
 describe( 'POST to /uploads/{container}/finalize', ()=>{
 
@@ -156,11 +156,11 @@ describe( 'POST to /uploads/{container}/finalize', ()=>{
     const fullURL = util.format( uploadsURL, querystring.stringify( queryObject ) );
 
     const requestContext = { 
-        payload:  null,
-        filePath: filePath,
-        worksheetID: worksheetID,
-        options:  url.parse( fullURL ),
-        importer: importerType
+      payload:  null,
+      filePath,
+      worksheetID,
+      options:  url.parse( fullURL ),
+      importer: importerType
     };
 
     compose(
@@ -180,16 +180,16 @@ describe( 'POST to /uploads/{container}/finalize', ()=>{
         const nextURL = res.lastResponse._links.next.href;
         const importer = res.importer;
 
-        expect( nextURL ).toContain( `/importers/${ importer }`, `Unexpected importer endpoint returned.` );
+        expect( nextURL ).toContain( `/importers/${ importer }`, 'Unexpected importer endpoint returned.' );
         done();
 
       }
 
     } );
 
- } );
+  } );
 
-} )
+} );
 
 /**
  * Performs an initial POST to /uploads to retrieve and returns both 
@@ -208,10 +208,14 @@ function fetchUploadLinks( requestContext, next ){
   .pipe( uploadContainerStream )
   .on( 'error', ( err )=>{} )
   .on( 'data', ( data )=>{
+
     requestContext.lastResponse = data;
+  
   } )
   .on( 'end', ()=>{
+
     next( null, requestContext );
+  
   } );
 
 }
@@ -226,21 +230,31 @@ function uploadChunks( requestContext, next ){
 
   just( requestContext )
   .on( 'error', ( err )=>{
+
     next( err );
+  
   } )
   .pipe( generateChunksStream( MAX_CHUNK_SIZE ) )
   .on( 'error', ( err )=>{
+
     next( err );
+  
   } )
   .pipe( sendChunksStream( requestContext, MAX_CHUNK_SIZE ) )
   .on( 'data', ( data )=>{
+
     requestContext.chunkResult = data;
+  
   } )
   .on( 'error', ( err )=>{
+
     next( err );
+  
   } )
   .on( 'end', ()=>{
+
     next( null, requestContext );
+  
   } );
 
 }
@@ -256,13 +270,19 @@ function finalize( requestContext, next ){
   just( requestContext )
   .pipe( finalizeUploadStream() )
   .on( 'error', ( err )=>{
+
     next( err );
+  
   } )
   .on( 'data', ( data )=>{
+
     requestContext.lastResponse = data;
+  
   } )
-  .on( 'end', ()=>{ 
+  .on( 'end', ()=>{
+ 
     next( null, requestContext );
+  
   } );
 
 }

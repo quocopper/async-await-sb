@@ -20,6 +20,7 @@
     "googleapis": "^19.0.0",
     "jasmine": "^2.5.3",
     "jasmine-data-provider": "^2.2.0",
+    "maildev": "^1.0.0-rc2",
     "multipipe": "^1.0.2",
     "request": "^2.81.0",
     "tessa-common": "git+ssh://git@github.com:copperleaftech/tessa-common.git#v1.0.1",

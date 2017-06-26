@@ -14,9 +14,9 @@ const fromArray = require( 'tessa-common/lib/stream/from-array' );
 
 const apply = require( 'tessa-common/lib/stream/apply' );
 
-const FormData = require('form-data');
+const FormData = require( 'form-data' );
 
-const http = require('http');
+const http = require( 'http' );
 
 const path = require( 'path' );
 
@@ -47,7 +47,7 @@ function finalizeUpload(){
    * 
    * @param { function } done callback
    */
-  function flush( done ) {
+  function flush( done ){
 
     const finalizeOptions = url.parse( finalizeURL );
 
@@ -55,9 +55,9 @@ function finalizeUpload(){
 
     finalizeOptions.method = 'post';
     finalizeOptions.headers = {
-      'Content-Type': 'application/json',
+      'Content-Type':   'application/json',
       'Content-Length': stringPayload.length
-    }
+    };
 
     sendRequest( finalizeOptions, stringPayload, ( err, res )=>{
 
