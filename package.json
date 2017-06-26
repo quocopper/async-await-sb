@@ -22,8 +22,9 @@
     "jasmine-data-provider": "^2.2.0",
     "maildev": "^1.0.0-rc2",
     "multipipe": "^1.0.2",
+    "nodemailer": "^4.0.1",
     "request": "^2.81.0",
-    "tessa-common": "git+ssh://git@github.com:copperleaftech/tessa-common.git#v1.0.1",
+    "tessa-common": "git+ssh://git@ssh.github.com:443/copperleaftech/tessa-common.git#v1.4.0",
     "tessa-importers": "git@github.com:copperleaftech/tessa-importers.git",
     "tessa-master-data": "git+ssh://git@github.com:copperleaftech/tessa-master-data.git"
   },

@@ -1,4 +1,14 @@
-const MailDev = require( 'maildev' );
+const MailDev 
+  = require( 'maildev' );
+
+const nodeMailer
+  = require( 'nodemailer' );
+
+const emailTransportArgs
+  = {};
+
+const transporter
+    = nodeMailer.createTransport( emailTransportArgs );
 
 describe( 'Run email spec', ()=>{
 
