@@ -7,27 +7,21 @@ const nodeMailer
 const emailTransportArgs
   = {
     host:      'localhost',
-    port:      1025,
+    port:      3333,
     ignoreTLS: true
   };
 
-// const env = {};
-
-// const emailTransportArgs = env.TESSA_IMPORTERS_EMAIL_TRANSPORT
-//   ? JSON.parse( env.TESSA_IMPORTERS_EMAIL_TRANSPORT )
-//   : {
-//     host:   'smtp.gmail.com',
-//     port:   465,
-//     secure: true, // use SSL
-//     auth:   {
-//       user: 'cbt.tessa@gmail.com',
-//       pass: 'Cbt16TWHt3ssa'
-//     }
-//   };
+const mailServerArgs
+  = {
+    smtp:    3333,
+    web:     1080,
+    verbose: false
+  };
 
 const transporter
     = nodeMailer.createTransport( emailTransportArgs );
 
+// Put into constants file
 const mailOptions
   = {
     from:    'cbt.tessa@gmail.com',
@@ -43,11 +37,7 @@ describe( 'Run email spec', ()=>{
   
   beforeAll( ( done )=>{
 
-    mailServer = new MailDev( {
-      smtp:    1025,
-      web:     1080,
-      verbose: false
-    } );
+    mailServer = new MailDev( mailServerArgs );
 
     mailServer.listen( ( err )=>{
 
@@ -93,17 +83,9 @@ describe( 'Run email spec', ()=>{
     console.log( 'Sending mail' ); // eslint-disable-line
     transporter.sendMail( mailOptions, ( err, info )=>{
 
-      console.log( `Error: ${ err }` ); // eslint-disable-line
-      console.log( 'Message %s sent: %s', JSON.stringify( info ) ); // eslint-disable-line
+      // console.log( `Error: ${ err }` ); // eslint-disable-line
+      // console.log( 'Message %s sent: %s', JSON.stringify( info ) ); // eslint-disable-line
       done();
-      // if( err ){
-
-      //   console.log( `Error: ${ err }` ); // eslint-disable-line
-      //   done();
-      
-      // }
-      // console.log( 'Message %s sent: %s', info.messageId, info.response ); // eslint-disable-line
-      // done();
 
     } );
 
